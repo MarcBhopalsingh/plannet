@@ -2,17 +2,27 @@
   "name": "@plannet/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "type": "module",
+  "bin": {
+    "plannet": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "nx build",
+    "dev": "nx dev",
+    "start": "nx build && node dist/cli.js",
+    "typecheck": "nx typecheck"
+  },
   "private": true,
-  "dependencies": {},
   "devDependencies": {
     "@nx/js": "22.1.2",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
+    "@types/node": "^24.10.1",
     "nx": "22.1.2",
     "prettier": "^2.6.2",
     "tslib": "^2.3.0",
+    "tsx": "^4.7.0",
     "typescript": "~5.9.2"
   },
   "workspaces": [

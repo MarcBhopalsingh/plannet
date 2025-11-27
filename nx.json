@@ -5,20 +5,12 @@
     "production": ["default"],
     "sharedGlobals": []
   },
-  "plugins": [
-    {
-      "plugin": "@nx/js/typescript",
-      "options": {
-        "typecheck": {
-          "targetName": "typecheck"
-        },
-        "build": {
-          "targetName": "build",
-          "configName": "tsconfig.lib.json",
-          "buildDepsName": "build-deps",
-          "watchDepsName": "watch-deps"
-        }
-      }
+  "targetDefaults": {
+    "build": {
+      "cache": true
+    },
+    "typecheck": {
+      "cache": true
     }
-  ]
+  }
 }
