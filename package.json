@@ -9,6 +9,7 @@
   "scripts": {
     "build": "nx build",
     "dev": "nx dev",
+    "dev:interactive": "nx dev -i",
     "typecheck": "nx typecheck"
   },
   "private": true,
