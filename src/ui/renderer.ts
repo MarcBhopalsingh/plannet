@@ -1,5 +1,5 @@
-import { Terminal } from './terminal.js';
-import { Task } from '../types.js';
+import { Terminal } from '@ui/terminal';
+import { Task } from '@types';
 
 export class Renderer {
   constructor(private readonly terminal: Terminal) {}

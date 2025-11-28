@@ -1,7 +1,7 @@
 import * as readline from 'readline';
-import { Terminal } from './terminal.js';
-import { Renderer } from './renderer.js';
-import { Task } from '../types.js';
+import { Terminal } from '@ui/terminal';
+import { Renderer } from '@ui/renderer';
+import { Task } from '@types';
 
 export class InteractiveTaskViewer {
   private selectedIndex = 0;

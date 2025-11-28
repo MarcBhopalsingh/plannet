@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { handleInteractive } from './commands/interactive.js';
-import { handleList } from './commands/list.js';
-import { handleAdd } from './commands/add.js';
-import { handleDefault } from './commands/default.js';
+import { handleInteractive } from '@commands/interactive';
+import { handleList } from '@commands/list';
+import { handleAdd } from '@commands/add';
+import { handleDefault } from '@commands/default';
 
 function handleError(error: unknown): never {
   const message = error instanceof Error ? error.message : String(error);

@@ -1,8 +1,8 @@
-import { getTaskService } from '../services/index.js';
-import { Terminal } from '../ui/terminal.js';
+import { TaskService } from '@services';
+import { Terminal } from '@ui/terminal';
 
 export async function handleList(): Promise<void> {
-  const taskService = getTaskService();
+  const taskService = new TaskService();
   const tasks = await taskService.loadTasks();
   
   const terminal = new Terminal();

@@ -5,6 +5,17 @@
   "projectType": "application",
   "targets": {
     "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "commands": [
+          "nx run plannet:build:compile",
+          "nx run plannet:build:resolve-paths"
+        ],
+        "parallel": false
+      }
+    },
+    "build:compile": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
@@ -12,6 +23,12 @@
         "main": "src/cli.ts",
         "tsConfig": "tsconfig.json",
         "assets": []
+      }
+    },
+    "build:resolve-paths": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc-alias -p tsconfig.json"
       }
     },
     "dev": {

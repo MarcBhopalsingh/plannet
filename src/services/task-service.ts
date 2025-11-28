@@ -1,5 +1,5 @@
 import { readFile, appendFile } from 'fs/promises';
-import { Task } from '../types.js';
+import { Task } from '@types';
 
 export class TaskService {
   constructor(private readonly tasksFile: string = 'tasks.txt') {}

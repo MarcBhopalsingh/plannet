@@ -1,8 +1,18 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@services": ["src/services/index"],
+      "@services/*": ["src/services/*"],
+      "@ui": ["src/ui/index"],
+      "@ui/*": ["src/ui/*"],
+      "@commands": ["src/commands/index"],
+      "@commands/*": ["src/commands/*"],
+      "@types": ["src/types"]
+    },
     "lib": ["es2022"],
     "outDir": "./dist",
     "rootDir": "./src",

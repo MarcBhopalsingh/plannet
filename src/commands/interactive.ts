@@ -1,10 +1,10 @@
-import { Terminal } from '../ui/terminal.js';
-import { Renderer } from '../ui/renderer.js';
-import { InteractiveTaskViewer } from '../ui/interactive.js';
-import { getTaskService } from '../services/index.js';
+import { Terminal } from '@ui/terminal';
+import { Renderer } from '@ui/renderer';
+import { InteractiveTaskViewer } from '@ui/interactive';
+import { TaskService } from '@services';
 
 export async function handleInteractive(): Promise<void> {
-  const taskService = getTaskService();
+  const taskService = new TaskService();
   const tasks = await taskService.loadTasks();
   
   const terminal = new Terminal();
