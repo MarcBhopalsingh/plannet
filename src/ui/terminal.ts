@@ -29,5 +29,13 @@ export class Terminal {
     this.showCursor();
     this.switchToMainScreen();
   }
+
+  write(text: string): void {
+    process.stdout.write(text);
+  }
+
+  writeLine(text: string): void {
+    process.stdout.write(text + '\n');
+  }
 }
 

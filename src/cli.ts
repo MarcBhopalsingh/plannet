@@ -1,39 +1,9 @@
 #!/usr/bin/env node
 
-import { run, setupAlternateScreen } from './app.js';
-import { TaskService } from './services/task-service.js';
-
-const taskService = new TaskService();
-
-async function handleInteractive(): Promise<void> {
-  setupAlternateScreen();
-  const tasks = await taskService.loadTasks();
-  await run(tasks);
-}
-
-async function handleList(): Promise<void> {
-  await displayTasks();
-}
-
-async function handleAdd(taskText: string): Promise<void> {
-  await taskService.addTask(taskText);
-}
-
-async function handleDefault(): Promise<void> {
-  console.log('No command provided');
-  console.log('Usage: plannet <command>');
-  console.log('Commands:');
-  console.log('  interactive - Run in interactive mode');
-  console.log('  list - List all tasks');
-  console.log('  add - Add a new task');
-  console.log('  help - Show help');
-  process.exit(0);
-}
-
-async function displayTasks(): Promise<void> {
-  const tasks = await taskService.loadTasks();
-  process.stdout.write(tasks.join('\n') + '\n');
-}
+import { handleInteractive } from './commands/interactive.js';
+import { handleList } from './commands/list.js';
+import { handleAdd } from './commands/add.js';
+import { handleDefault } from './commands/default.js';
 
 function handleError(error: unknown): never {
   const message = error instanceof Error ? error.message : String(error);
