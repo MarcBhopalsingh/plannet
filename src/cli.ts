@@ -3,68 +3,89 @@
 import { appendFile, readFile } from 'fs/promises';
 import { run } from './app.js';
 
-// Parse command line arguments
-const args = process.argv.slice(2);
-const isInteractive = args.includes('-i');
-const listTasks = args.includes('-l');
-const addIndex = args.indexOf('-a');
+const TASKS_FILE = 'tasks.txt';
 
-// Bootstrap the CLI
-if (isInteractive) {
-  // Read and print the contents of tasks.txt, then start interactive mode
-  readFile('tasks.txt', 'utf-8')
-    .then((content) => {
-      process.stdout.write(content);
-      // Start interactive mode after listing tasks
-      return run();
-    })
-    .then(() => {
-      process.exit(0);
-    })
-    .catch((error) => {
-      if (error.code === 'ENOENT') {
-        // File doesn't exist yet, just start interactive mode
-        run()
-          .then(() => {
-            process.exit(0);
-          })
-          .catch((runError) => {
-            console.error('Error:', runError.message);
-            process.exit(1);
-          });
-      } else {
-        console.error('Error reading tasks.txt:', error.message);
-        process.exit(1);
-      }
-    });
-} else if (listTasks) {
-  // Read and print the contents of tasks.txt
-  readFile('tasks.txt', 'utf-8')
-    .then((content) => {
-      process.stdout.write(content);
-      process.exit(0);
-    })
-    .catch((error) => {
-      if (error.code === 'ENOENT') {
-        // File doesn't exist yet, print nothing or a message
-        process.exit(0);
-      } else {
-        console.error('Error reading tasks.txt:', error.message);
-        process.exit(1);
-      }
-    });
-} else if (addIndex !== -1) {
-  // Get everything after the -a flag
-  const taskText = args.slice(addIndex + 1).join(' ');
-  appendFile('tasks.txt', taskText + '\n')
-    .then(() => {
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('Error writing to tasks.txt:', error.message);
-      process.exit(1);
-    });
-} else {
-  console.log('hello world');
+// Command handlers
+async function handleInteractive(): Promise<void> {
+  await displayTasks();
+  await run();
+}
+
+async function handleList(): Promise<void> {
+  await displayTasks();
+}
+
+async function handleAdd(taskText: string): Promise<void> {
+  await appendFile(TASKS_FILE, taskText + '\n');
+}
+
+async function handleDefault(): Promise<void> {
+  console.log('No command provided');
+  console.log('Usage: plannet <command>');
+  console.log('Commands:');
+  console.log('  interactive - Run in interactive mode');
+  console.log('  list - List all tasks');
+  console.log('  add - Add a new task');
+  console.log('  help - Show help');
   process.exit(0);
 }
+
+// Utility functions
+async function displayTasks(): Promise<void> {
+  try {
+    const content = await readFile(TASKS_FILE, 'utf-8');
+    process.stdout.write(content);
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      // File doesn't exist yet, silently continue
+      return;
+    }
+    throw error;
+  }
+}
+
+function handleError(error: unknown): never {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error('Error:', message);
+  process.exit(1);
+}
+
+// Command routing
+async function executeCommand(command: string, args: string[]): Promise<void> {
+  switch (command) {
+    case 'interactive':
+    case 'i':
+      await handleInteractive();
+      break;
+    case 'list':
+    case 'ls':
+      await handleList();
+      break;
+    case 'add':
+    case 'a':
+      if (args.length === 0) {
+        console.error('Error: "add" command requires a task description');
+        process.exit(1);
+      }
+      await handleAdd(args.join(' '));
+      break;
+    default:
+      await handleDefault();
+  }
+}
+
+// Main CLI logic
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const command = args[0] || 'default';
+  const restArgs = args.slice(1);
+
+  try {
+    await executeCommand(command, restArgs);
+    process.exit(0);
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+main();
