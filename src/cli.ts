@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import { appendFile, readFile } from 'fs/promises';
-import { run } from './app.js';
+import { run, setupAlternateScreen } from './app.js';
+import { TaskService } from './services/task-service.js';
 
-const TASKS_FILE = 'tasks.txt';
+const taskService = new TaskService();
 
-// Command handlers
 async function handleInteractive(): Promise<void> {
-  await displayTasks();
-  await run();
+  setupAlternateScreen();
+  const tasks = await taskService.loadTasks();
+  await run(tasks);
 }
 
 async function handleList(): Promise<void> {
@@ -16,7 +16,7 @@ async function handleList(): Promise<void> {
 }
 
 async function handleAdd(taskText: string): Promise<void> {
-  await appendFile(TASKS_FILE, taskText + '\n');
+  await taskService.addTask(taskText);
 }
 
 async function handleDefault(): Promise<void> {
@@ -30,18 +30,9 @@ async function handleDefault(): Promise<void> {
   process.exit(0);
 }
 
-// Utility functions
 async function displayTasks(): Promise<void> {
-  try {
-    const content = await readFile(TASKS_FILE, 'utf-8');
-    process.stdout.write(content);
-  } catch (error: any) {
-    if (error.code === 'ENOENT') {
-      // File doesn't exist yet, silently continue
-      return;
-    }
-    throw error;
-  }
+  const tasks = await taskService.loadTasks();
+  process.stdout.write(tasks.join('\n') + '\n');
 }
 
 function handleError(error: unknown): never {
@@ -50,7 +41,6 @@ function handleError(error: unknown): never {
   process.exit(1);
 }
 
-// Command routing
 async function executeCommand(command: string, args: string[]): Promise<void> {
   switch (command) {
     case 'interactive':
@@ -74,7 +64,6 @@ async function executeCommand(command: string, args: string[]): Promise<void> {
   }
 }
 
-// Main CLI logic
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const command = args[0] || 'default';
