@@ -1,9 +1,11 @@
-import { TaskService } from '../services/task-service.js';
-
-const taskService = new TaskService();
+import { getTaskService } from '../services/index.js';
+import { Terminal } from '../ui/terminal.js';
 
 export async function handleList(): Promise<void> {
+  const taskService = getTaskService();
   const tasks = await taskService.loadTasks();
-  process.stdout.write(tasks.join('\n') + '\n');
+  
+  const terminal = new Terminal();
+  terminal.writeLine(tasks.join('\n'));
 }
 

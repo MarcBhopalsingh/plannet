@@ -1,12 +1,11 @@
 import * as readline from 'readline';
-import { onKeypress } from '../input.js';
 import { Terminal } from './terminal.js';
 import { Renderer } from './renderer.js';
 import { Task } from '../types.js';
 
 export class InteractiveTaskViewer {
   private selectedIndex = 0;
-  private cleanupFn: (() => void) | null = null;
+  private keypressHandler: ((str: string, key: readline.Key) => void) | null = null;
 
   constructor(
     private readonly terminal: Terminal,
@@ -23,9 +22,15 @@ export class InteractiveTaskViewer {
   }
 
   private setupKeypress(resolve: () => void): void {
-    this.cleanupFn = onKeypress((str: string, key: readline.Key) => {
+    // Set up raw mode for stdin
+    readline.emitKeypressEvents(process.stdin);
+    if (process.stdin.isTTY && process.stdin.setRawMode) {
+      process.stdin.setRawMode(true);
+    }
+
+    // Set up keypress handler
+    this.keypressHandler = (str: string, key: readline.Key) => {
       if (key.name === 'q') {
-        this.terminal.restoreMainScreen();
         this.cleanup();
         resolve();
       } else if (
@@ -48,14 +53,20 @@ export class InteractiveTaskViewer {
           this.renderer.render(this.tasks, this.selectedIndex);
         }
       }
-    });
+    };
+
+    process.stdin.on('keypress', this.keypressHandler);
   }
 
   private cleanup(): void {
-    if (this.cleanupFn) {
-      this.cleanupFn();
-      this.cleanupFn = null;
+    if (this.keypressHandler) {
+      process.stdin.removeListener('keypress', this.keypressHandler);
+      this.keypressHandler = null;
     }
+    if (process.stdin.isTTY && process.stdin.setRawMode) {
+      process.stdin.setRawMode(false);
+    }
+    process.stdin.pause();
   }
 }
 
