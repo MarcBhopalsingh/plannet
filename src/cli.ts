@@ -3,7 +3,7 @@
 import { handleInteractive } from '@commands/interactive';
 import { handleList } from '@commands/list';
 import { handleAdd } from '@commands/add';
-import { handleDefault } from '@commands/default';
+import { displayUsageAndExit } from '@commands/default';
 
 function handleError(error: unknown): never {
   const message = error instanceof Error ? error.message : String(error);
@@ -30,7 +30,7 @@ async function executeCommand(command: string, args: string[]): Promise<void> {
       await handleAdd(args.join(' '));
       break;
     default:
-      await handleDefault();
+      await displayUsageAndExit();
   }
 }
 
