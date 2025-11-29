@@ -29,4 +29,3 @@ export class TaskService {
     return this.loadTasks();
   }
 }
-

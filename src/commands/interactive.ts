@@ -6,11 +6,11 @@ import { TaskService } from '@services';
 export async function handleInteractive(): Promise<void> {
   const taskService = new TaskService();
   const tasks = await taskService.loadTasks();
-  
+
   const terminal = new Terminal();
   const renderer = new Renderer(terminal);
   const viewer = new InteractiveTaskViewer(terminal, renderer, tasks);
-  
+
   terminal.setupAlternateScreen();
   try {
     await viewer.run();
@@ -18,4 +18,3 @@ export async function handleInteractive(): Promise<void> {
     terminal.restoreMainScreen();
   }
 }
-
