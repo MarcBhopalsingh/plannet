@@ -14,15 +14,23 @@ export class Renderer {
     }
 
     tasks.forEach((task, index) => {
+      const text = this.formatTaskText(task);
       if (index === selectedIndex) {
-        this.terminal.writeLine(`\x1b[7m${task}\x1b[0m`);
+        this.terminal.writeLine(`\x1b[7m${text}\x1b[0m`);
       } else {
-        this.terminal.writeLine(`${task}`);
+        this.terminal.writeLine(text);
       }
     });
 
-    this.terminal.writeLine(
-      '\nPress "q" to exit | Use arrow keys or j/k to navigate'
-    );
+    this.terminal.writeLine(this.renderHelpText());
+  }
+
+  private renderHelpText(): string {
+    return '\n\x1b[2m  q: quit  •  ↑↓/jk: navigate  •  space: toggle\x1b[0m';
+  }
+
+  private formatTaskText(task: Task): string {
+    const prefix = task.completed ? '[x]' : '[ ]';
+    return `${prefix} ${task.description}`;
   }
 }

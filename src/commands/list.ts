@@ -6,5 +6,8 @@ export async function handleList(): Promise<void> {
   const tasks = await taskService.loadTasks();
 
   const terminal = new Terminal();
-  terminal.writeLine(tasks.join('\n'));
+  tasks.forEach((task) => {
+    const prefix = task.completed ? '[x]' : '[ ]';
+    terminal.writeLine(`${prefix} ${task.description}`);
+  });
 }

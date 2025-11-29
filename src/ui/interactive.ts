@@ -2,6 +2,7 @@ import * as readline from 'readline';
 import { Terminal } from '@ui/terminal';
 import { Renderer } from '@ui/renderer';
 import { Task } from '@types';
+import { TaskService } from '@services';
 
 export class InteractiveTaskViewer {
   private selectedIndex = 0;
@@ -11,6 +12,7 @@ export class InteractiveTaskViewer {
   constructor(
     private readonly terminal: Terminal,
     private readonly renderer: Renderer,
+    private readonly taskService: TaskService,
     private readonly tasks: Task[]
   ) {}
 
@@ -32,8 +34,11 @@ export class InteractiveTaskViewer {
     // Set up keypress handler
     this.keypressHandler = (str: string, key: readline.Key) => {
       if (key.name === 'q') {
-        this.cleanup();
-        resolve();
+        this.handleQuit(resolve).catch((error) => {
+          console.error('Error saving tasks:', error);
+          this.cleanup();
+          resolve();
+        });
       } else if (
         key.name === 'up' ||
         (key.name === 'k' && key.ctrl === false)
@@ -53,10 +58,21 @@ export class InteractiveTaskViewer {
           );
           this.renderer.render(this.tasks, this.selectedIndex);
         }
+      } else if (key.name === 'space') {
+        if (this.tasks.length > 0) {
+          this.tasks[this.selectedIndex].toggleCompletion();
+          this.renderer.render(this.tasks, this.selectedIndex);
+        }
       }
     };
 
     process.stdin.on('keypress', this.keypressHandler);
+  }
+
+  private async handleQuit(resolve: () => void): Promise<void> {
+    await this.taskService.saveTasks(this.tasks);
+    this.cleanup();
+    resolve();
   }
 
   private cleanup(): void {
