@@ -1,22 +1,30 @@
+const ANSI = {
+  ALTERNATE_SCREEN_ON: '\x1b[?1049h',
+  ALTERNATE_SCREEN_OFF: '\x1b[?1049l',
+  CLEAR_SCREEN: '\x1b[2J\x1b[H',
+  HIDE_CURSOR: '\x1b[?25l',
+  SHOW_CURSOR: '\x1b[?25h',
+} as const;
+
 export class Terminal {
   switchToAlternateScreen(): void {
-    process.stdout.write('\x1b[?1049h');
+    process.stdout.write(ANSI.ALTERNATE_SCREEN_ON);
   }
 
   switchToMainScreen(): void {
-    process.stdout.write('\x1b[?1049l');
+    process.stdout.write(ANSI.ALTERNATE_SCREEN_OFF);
   }
 
   clearScreen(): void {
-    process.stdout.write('\x1b[2J\x1b[H');
+    process.stdout.write(ANSI.CLEAR_SCREEN);
   }
 
   hideCursor(): void {
-    process.stdout.write('\x1b[?25l');
+    process.stdout.write(ANSI.HIDE_CURSOR);
   }
 
   showCursor(): void {
-    process.stdout.write('\x1b[?25h');
+    process.stdout.write(ANSI.SHOW_CURSOR);
   }
 
   setupAlternateScreen(): void {
@@ -38,4 +46,3 @@ export class Terminal {
     process.stdout.write(text + '\n');
   }
 }
-

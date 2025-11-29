@@ -42,7 +42,10 @@ export class TaskService {
     await this.saveTasks(tasks);
   }
 
-  async getAllTasks(): Promise<Task[]> {
-    return this.loadTasks();
+  getTaskStats(tasks: Task[]): { total: number; completed: number } {
+    return {
+      total: tasks.length,
+      completed: tasks.filter((t) => t.completed).length,
+    };
   }
 }

@@ -9,7 +9,7 @@ export async function handleInteractive(): Promise<void> {
 
   const terminal = new Terminal();
   const renderer = new Renderer(terminal);
-  const viewer = new InteractiveTaskViewer(terminal, renderer, taskService, tasks);
+  const viewer = new InteractiveTaskViewer(renderer, taskService, tasks);
 
   terminal.setupAlternateScreen();
   try {

@@ -3,7 +3,7 @@
 import { handleInteractive } from '@commands/interactive';
 import { handleList } from '@commands/list';
 import { handleAdd } from '@commands/add';
-import { displayUsageAndExit } from '@commands/default';
+import { displayUsageAndExit } from '@commands/usage';
 
 function handleError(error: unknown): never {
   const message = error instanceof Error ? error.message : String(error);

@@ -1,27 +1,37 @@
 import * as readline from 'readline';
-import { Terminal } from '@ui/terminal';
 import { Renderer } from '@ui/renderer';
 import { Task } from '@types';
 import { TaskService } from '@services';
+import { TaskListView } from '@ui/task-list-view';
 
 export class InteractiveTaskViewer {
-  private selectedIndex = 0;
   private keypressHandler: ((str: string, key: readline.Key) => void) | null =
     null;
+  private readonly viewModel: TaskListView;
 
   constructor(
-    private readonly terminal: Terminal,
     private readonly renderer: Renderer,
     private readonly taskService: TaskService,
-    private readonly tasks: Task[]
-  ) {}
+    tasks: Task[]
+  ) {
+    this.viewModel = new TaskListView(tasks);
+  }
 
   async run(): Promise<void> {
-    this.renderer.render(this.tasks, this.selectedIndex);
+    this.render();
 
     return new Promise((resolve) => {
       this.setupKeypress(resolve);
     });
+  }
+
+  private render(): void {
+    const stats = this.taskService.getTaskStats(this.viewModel.getTasks());
+    this.renderer.render(
+      this.viewModel.getTasks(),
+      this.viewModel.getSelectedIndex(),
+      stats
+    );
   }
 
   private setupKeypress(resolve: () => void): void {
@@ -43,26 +53,17 @@ export class InteractiveTaskViewer {
         key.name === 'up' ||
         (key.name === 'k' && key.ctrl === false)
       ) {
-        if (this.tasks.length > 0) {
-          this.selectedIndex = Math.max(0, this.selectedIndex - 1);
-          this.renderer.render(this.tasks, this.selectedIndex);
-        }
+        this.viewModel.moveUp();
+        this.render();
       } else if (
         key.name === 'down' ||
         (key.name === 'j' && key.ctrl === false)
       ) {
-        if (this.tasks.length > 0) {
-          this.selectedIndex = Math.min(
-            this.tasks.length - 1,
-            this.selectedIndex + 1
-          );
-          this.renderer.render(this.tasks, this.selectedIndex);
-        }
+        this.viewModel.moveDown();
+        this.render();
       } else if (key.name === 'space') {
-        if (this.tasks.length > 0) {
-          this.tasks[this.selectedIndex].toggleCompletion();
-          this.renderer.render(this.tasks, this.selectedIndex);
-        }
+        this.viewModel.toggleSelectedTask();
+        this.render();
       }
     };
 
@@ -70,7 +71,7 @@ export class InteractiveTaskViewer {
   }
 
   private async handleQuit(resolve: () => void): Promise<void> {
-    await this.taskService.saveTasks(this.tasks);
+    await this.taskService.saveTasks(this.viewModel.getTasksForSave());
     this.cleanup();
     resolve();
   }
