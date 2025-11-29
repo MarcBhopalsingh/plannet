@@ -5,7 +5,8 @@ import { Task } from '@types';
 
 export class InteractiveTaskViewer {
   private selectedIndex = 0;
-  private keypressHandler: ((str: string, key: readline.Key) => void) | null = null;
+  private keypressHandler: ((str: string, key: readline.Key) => void) | null =
+    null;
 
   constructor(
     private readonly terminal: Terminal,
@@ -69,4 +70,3 @@ export class InteractiveTaskViewer {
     process.stdin.pause();
   }
 }
-
