@@ -45,5 +45,16 @@ export class Terminal {
   writeLine(text: string): void {
     process.stdout.write(text + '\n');
   }
-}
 
+  getRows(): number {
+    return process.stdout.rows || 24;
+  }
+
+  getColumns(): number {
+    return process.stdout.columns || 80;
+  }
+
+  moveCursor(row: number, col: number): void {
+    process.stdout.write(`\x1b[${row};${col}H`);
+  }
+}

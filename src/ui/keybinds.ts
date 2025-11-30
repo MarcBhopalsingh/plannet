@@ -21,4 +21,8 @@ export const KEYBINDS: Record<string, Keybind> = {
     description: 'space: toggle',
     match: (key: readline.Key) => key.name === 'space',
   },
+  ADD: {
+    description: 'a: add',
+    match: (key: readline.Key) => key.name === 'a' && !key.ctrl,
+  },
 };

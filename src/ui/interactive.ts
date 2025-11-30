@@ -80,6 +80,15 @@ export class InteractiveTaskViewer {
           execute: () => this.viewModel.toggleSelectedTask(),
         },
       ],
+      // WIP: This is broken because of conflicted ownership of stdin. REFACTOR_INPUT_MANAGEMENT.md will fix this.
+      // [
+      //   KEYBINDS.ADD,
+      //   {
+      //     name: 'add',
+      //     shouldRerender: false,
+      //     execute: () => this.handleAdd(),
+      //   },
+      // ],
     ]);
   }
 
@@ -117,6 +126,22 @@ export class InteractiveTaskViewer {
       this.keypressHandler.stop();
       this.renderer.exitAlternateScreen();
       this.resolveExit();
+    }
+  }
+
+  private async handleAdd(): Promise<void> {
+    this.keypressHandler.stop();
+
+    try {
+      const input = await this.renderer.promptForText('Add new task:');
+      if (input) {
+        this.viewModel.addTask(new Task(input));
+      }
+    } catch (error) {
+      console.error('Failed to add task:', error);
+    } finally {
+      this.render();
+      this.setupKeypress();
     }
   }
 }

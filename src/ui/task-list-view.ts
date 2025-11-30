@@ -2,7 +2,7 @@ import { Task } from '@plannet/tasks';
 
 export class TaskListView {
   private selectedIndex = 0;
-  private readonly tasks: Task[];
+  private tasks: Task[];
 
   constructor(tasks: Task[]) {
     this.tasks = tasks;
@@ -36,6 +36,10 @@ export class TaskListView {
 
   getTasksForSave(): Task[] {
     return [...this.tasks];
+  }
+
+  addTask(task: Task): void {
+    this.tasks.push(task);
   }
 }
 
