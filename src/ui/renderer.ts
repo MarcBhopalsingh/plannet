@@ -1,5 +1,6 @@
 import { Terminal } from '@ui/terminal';
 import { Task } from '@types';
+import { KEYBINDS } from '@ui/keybinds';
 
 const ANSI = {
   RESET: '\x1b[0m',
@@ -69,7 +70,10 @@ export class Renderer {
   }
 
   private renderHelpText(): string {
-    return `\n${ANSI.DIM}  q: quit  •  ↑↓/jk: navigate  •  space: toggle${ANSI.RESET}`;
+    const descriptions = Object.values(KEYBINDS)
+      .map((kb) => kb.description)
+      .join('  •  ');
+    return `\n${ANSI.DIM}  ${descriptions}${ANSI.RESET}`;
   }
 
   private formatTaskText(task: Task, isSelected: boolean): string {

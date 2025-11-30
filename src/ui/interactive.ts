@@ -1,13 +1,21 @@
-import * as readline from 'readline';
 import { Renderer } from '@ui/renderer';
 import { Task } from '@types';
 import { TaskService } from '@services';
 import { TaskListView } from '@ui/task-list-view';
+import { KEYBINDS, Keybind } from '@ui/keybinds';
+import { KeypressHandler } from '@ui/keypress-handler';
+
+interface Command {
+  execute(): void | Promise<void>;
+  shouldRerender: boolean;
+  name: string;
+}
 
 export class InteractiveTaskViewer {
-  private keypressHandler: ((str: string, key: readline.Key) => void) | null =
-    null;
   private readonly viewModel: TaskListView;
+  private readonly keypressHandler: KeypressHandler;
+  private resolveExit!: () => void;
+  private readonly exitPromise: Promise<void>;
 
   constructor(
     private readonly renderer: Renderer,
@@ -15,15 +23,19 @@ export class InteractiveTaskViewer {
     tasks: Task[]
   ) {
     this.viewModel = new TaskListView(tasks);
+    this.keypressHandler = new KeypressHandler(KEYBINDS);
+
+    this.exitPromise = new Promise((resolve) => {
+      this.resolveExit = resolve;
+    });
   }
 
   async run(): Promise<void> {
     this.renderer.enterAlternateScreen();
     this.render();
+    this.setupKeypress();
 
-    return new Promise((resolve) => {
-      this.setupKeypress(resolve);
-    });
+    return this.exitPromise;
   }
 
   private render(): void {
@@ -35,63 +47,77 @@ export class InteractiveTaskViewer {
     );
   }
 
-  private setupKeypress(resolve: () => void): void {
-    // Set up raw mode for stdin
-    readline.emitKeypressEvents(process.stdin);
-    if (process.stdin.isTTY && process.stdin.setRawMode) {
-      process.stdin.setRawMode(true);
-    }
-
-    // Set up keypress handler
-    this.keypressHandler = (str: string, key: readline.Key) => {
-      if (key.name === 'q') {
-        this.handleQuit(resolve).catch((error) => {
-          console.error('Error saving tasks:', error);
-          this.cleanup();
-          this.renderer.exitAlternateScreen();
-          resolve();
-        });
-      } else if (
-        key.name === 'up' ||
-        (key.name === 'k' && key.ctrl === false)
-      ) {
-        this.viewModel.moveUp();
-        this.render();
-      } else if (
-        key.name === 'down' ||
-        (key.name === 'j' && key.ctrl === false)
-      ) {
-        this.viewModel.moveDown();
-        this.render();
-      } else if (key.name === 'space') {
-        this.viewModel.toggleSelectedTask();
-        this.render();
-      }
-    };
-
-    process.stdin.on('keypress', this.keypressHandler);
+  private createCommandRegistry(): Map<Keybind, Command> {
+    return new Map([
+      [
+        KEYBINDS.QUIT,
+        {
+          name: 'quit',
+          shouldRerender: false,
+          execute: () => this.handleQuit(),
+        },
+      ],
+      [
+        KEYBINDS.MOVE_UP,
+        {
+          name: 'moveUp',
+          shouldRerender: true,
+          execute: () => this.viewModel.moveUp(),
+        },
+      ],
+      [
+        KEYBINDS.MOVE_DOWN,
+        {
+          name: 'moveDown',
+          shouldRerender: true,
+          execute: () => this.viewModel.moveDown(),
+        },
+      ],
+      [
+        KEYBINDS.TOGGLE,
+        {
+          name: 'toggle',
+          shouldRerender: true,
+          execute: () => this.viewModel.toggleSelectedTask(),
+        },
+      ],
+    ]);
   }
 
-  private async handleQuit(resolve: () => void): Promise<void> {
+  private async executeCommand(command: Command): Promise<void> {
+    try {
+      await command.execute();
+      if (command.shouldRerender) {
+        this.render();
+      }
+    } catch (error) {
+      console.error(`Error executing command '${command.name}':`, error);
+      if (command.shouldRerender) {
+        this.render();
+      }
+    }
+  }
+
+  private setupKeypress(): void {
+    const commands = this.createCommandRegistry();
+
+    this.keypressHandler.start(async (keybind) => {
+      const command = commands.get(keybind);
+      if (command) {
+        await this.executeCommand(command);
+      }
+    });
+  }
+
+  private async handleQuit(): Promise<void> {
     try {
       await this.taskService.saveTasks(this.viewModel.getTasksForSave());
     } catch (error) {
       console.error('Error saving tasks:', error);
     } finally {
-      this.cleanup();
+      this.keypressHandler.stop();
       this.renderer.exitAlternateScreen();
-      resolve();
+      this.resolveExit();
     }
-  }
-
-  private cleanup(): void {
-    if (this.keypressHandler) {
-      process.stdin.removeListener('keypress', this.keypressHandler);
-      this.keypressHandler = null;
-    }
-    if (process.stdin.isTTY && process.stdin.setRawMode) {
-      process.stdin.setRawMode(false);
-    }
-    process.stdin.pause();
   }
 }
