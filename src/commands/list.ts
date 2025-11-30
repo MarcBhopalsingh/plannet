@@ -1,5 +1,5 @@
-import { TaskService } from '@services';
-import { Terminal } from '@ui/terminal';
+import { TaskService } from '@plannet/services';
+import { Terminal } from '@plannet/io';
 
 export async function handleList(): Promise<void> {
   const taskService = new TaskService();

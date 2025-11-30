@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { handleInteractive } from '@commands/interactive';
-import { handleList } from '@commands/list';
-import { handleAdd } from '@commands/add';
-import { displayUsage } from '@commands/usage';
+import { handleInteractive } from '@plannet/commands';
+import { handleList } from '@plannet/commands';
+import { handleAdd } from '@plannet/commands';
+import { displayUsage } from '@plannet/commands';
 
 type CommandHandler = (args: string[]) => Promise<void>;
 

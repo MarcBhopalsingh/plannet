@@ -1,5 +1,5 @@
 import * as readline from 'readline';
-import { Keybind } from '@ui/keybinds';
+import { Keybind } from './keybinds';
 
 export class KeypressHandler {
   private keypressListener?: (str: string, key: readline.Key) => void;
@@ -39,4 +39,3 @@ export class KeypressHandler {
     process.stdin.pause();
   }
 }
-

@@ -1,9 +1,5 @@
 import * as readline from 'readline';
-
-export interface Keybind {
-  description: string;
-  match: (key: readline.Key) => boolean;
-}
+import { Keybind } from '@plannet/io';
 
 export const KEYBINDS: Record<string, Keybind> = {
   QUIT: {

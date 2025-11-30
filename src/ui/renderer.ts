@@ -1,6 +1,6 @@
-import { Terminal } from '@ui/terminal';
-import { Task } from '@types';
-import { KEYBINDS } from '@ui/keybinds';
+import { Terminal } from '@plannet/io';
+import { Task } from '@plannet/types';
+import { KEYBINDS } from '@plannet/ui';
 
 const ANSI = {
   RESET: '\x1b[0m',

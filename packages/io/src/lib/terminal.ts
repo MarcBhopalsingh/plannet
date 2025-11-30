@@ -46,3 +46,4 @@ export class Terminal {
     process.stdout.write(text + '\n');
   }
 }
+

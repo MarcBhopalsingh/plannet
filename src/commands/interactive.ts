@@ -1,6 +1,6 @@
-import { Renderer } from '@ui/renderer';
-import { InteractiveTaskViewer } from '@ui/interactive';
-import { TaskService } from '@services';
+import { Renderer } from '@plannet/ui';
+import { InteractiveTaskViewer } from '@plannet/ui';
+import { TaskService } from '@plannet/services';
 
 export async function handleInteractive(): Promise<void> {
   const taskService = new TaskService();

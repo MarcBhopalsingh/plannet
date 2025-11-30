@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'fs/promises';
-import { Task } from '@types';
+import { Task } from '@plannet/types';
 
 export class TaskService {
   constructor(private readonly tasksFile: string = 'tasks.json') {}

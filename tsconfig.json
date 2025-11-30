@@ -5,17 +5,14 @@
     "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      "@services": ["src/services/index"],
-      "@services/*": ["src/services/*"],
-      "@ui": ["src/ui/index"],
-      "@ui/*": ["src/ui/*"],
-      "@commands": ["src/commands/index"],
-      "@commands/*": ["src/commands/*"],
-      "@types": ["src/types"]
+      "@plannet/io": ["packages/io/src/index.ts"],
+      "@plannet/services": ["src/services/index.ts"],
+      "@plannet/ui": ["src/ui/index.ts"],
+      "@plannet/commands": ["src/commands/index.ts"],
+      "@plannet/types": ["src/types.ts"]
     },
     "lib": ["es2022"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,

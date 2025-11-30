@@ -1,4 +1,4 @@
-import { Terminal } from '@ui/terminal';
+import { Terminal } from '@plannet/io';
 
 export function displayUsage(): void {
   const terminal = new Terminal();

@@ -1,9 +1,9 @@
-import { Renderer } from '@ui/renderer';
-import { Task } from '@types';
-import { TaskService } from '@services';
-import { TaskListView } from '@ui/task-list-view';
-import { KEYBINDS, Keybind } from '@ui/keybinds';
-import { KeypressHandler } from '@ui/keypress-handler';
+import { Renderer } from '@plannet/ui';
+import { Task } from '@plannet/types';
+import { TaskService } from '@plannet/services';
+import { TaskListView } from '@plannet/ui';
+import { KeypressHandler, Keybind } from '@plannet/io';
+import { KEYBINDS } from '@plannet/ui';
 
 interface Command {
   execute(): void | Promise<void>;
