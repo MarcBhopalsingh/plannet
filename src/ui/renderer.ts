@@ -15,7 +15,19 @@ const CHECKBOX = {
 } as const;
 
 export class Renderer {
-  constructor(private readonly terminal: Terminal) {}
+  private readonly terminal: Terminal;
+
+  constructor() {
+    this.terminal = new Terminal();
+  }
+
+  enterAlternateScreen(): void {
+    this.terminal.setupAlternateScreen();
+  }
+
+  exitAlternateScreen(): void {
+    this.terminal.restoreMainScreen();
+  }
 
   render(
     tasks: Task[],

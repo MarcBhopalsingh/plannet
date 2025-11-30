@@ -18,6 +18,7 @@ export class InteractiveTaskViewer {
   }
 
   async run(): Promise<void> {
+    this.renderer.enterAlternateScreen();
     this.render();
 
     return new Promise((resolve) => {
@@ -47,6 +48,7 @@ export class InteractiveTaskViewer {
         this.handleQuit(resolve).catch((error) => {
           console.error('Error saving tasks:', error);
           this.cleanup();
+          this.renderer.exitAlternateScreen();
           resolve();
         });
       } else if (
@@ -71,9 +73,15 @@ export class InteractiveTaskViewer {
   }
 
   private async handleQuit(resolve: () => void): Promise<void> {
-    await this.taskService.saveTasks(this.viewModel.getTasksForSave());
-    this.cleanup();
-    resolve();
+    try {
+      await this.taskService.saveTasks(this.viewModel.getTasksForSave());
+    } catch (error) {
+      console.error('Error saving tasks:', error);
+    } finally {
+      this.cleanup();
+      this.renderer.exitAlternateScreen();
+      resolve();
+    }
   }
 
   private cleanup(): void {
