@@ -3,47 +3,44 @@
 import { handleInteractive } from '@commands/interactive';
 import { handleList } from '@commands/list';
 import { handleAdd } from '@commands/add';
-import { displayUsageAndExit } from '@commands/usage';
+import { displayUsage } from '@commands/usage';
 
-function handleError(error: unknown): never {
-  const message = error instanceof Error ? error.message : String(error);
-  console.error('Error:', message);
-  process.exit(1);
-}
+type CommandHandler = (args: string[]) => Promise<void>;
+
+const handlers: Record<string, CommandHandler> = {
+  interactive: handleInteractive,
+  list: handleList,
+  add: (args) => handleAdd(args.join(' ')),
+};
 
 async function executeCommand(command: string, args: string[]): Promise<void> {
-  switch (command) {
-    case 'interactive':
-    case 'i':
-      await handleInteractive();
-      break;
-    case 'list':
-    case 'ls':
-      await handleList();
-      break;
-    case 'add':
-    case 'a':
-      if (args.length === 0) {
-        console.error('Error: "add" command requires a task description');
-        process.exit(1);
-      }
-      await handleAdd(args.join(' '));
-      break;
-    default:
-      await displayUsageAndExit();
+  const handler = handlers[command];
+
+  if (!handler) {
+    displayUsage();
+    throw new Error(`Unknown command: ${command}`);
   }
+
+  return handler(args);
 }
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  const command = args[0] || 'default';
+
+  if (args.length === 0) {
+    displayUsage();
+    return;
+  }
+
+  const command = args[0];
   const restArgs = args.slice(1);
 
   try {
     await executeCommand(command, restArgs);
-    process.exit(0);
   } catch (error) {
-    handleError(error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Error:', message);
+    process.exit(1);
   }
 }
 
