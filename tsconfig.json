@@ -6,10 +6,8 @@
     "baseUrl": ".",
     "paths": {
       "@plannet/io": ["packages/io/src/index.ts"],
-      "@plannet/services": ["src/services/index.ts"],
       "@plannet/ui": ["src/ui/index.ts"],
       "@plannet/commands": ["src/commands/index.ts"],
-      "@plannet/types": ["src/types.ts"],
       "@plannet/tasks": ["packages/tasks/src/index.ts"]
     },
     "lib": ["es2022"],

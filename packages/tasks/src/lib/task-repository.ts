@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises';
-import { Task } from '@plannet/types';
+import { Task } from './task';
 
-export class TaskService {
+export class TaskRepository {
   constructor(private readonly tasksFile: string = 'tasks.json') {}
 
   private isFileNotFoundError(error: unknown): error is NodeJS.ErrnoException {
@@ -12,7 +12,7 @@ export class TaskService {
     );
   }
 
-  async loadTasks(): Promise<Task[]> {
+  async findAll(): Promise<Task[]> {
     try {
       const content = await readFile(this.tasksFile, 'utf-8');
       const data = JSON.parse(content);
@@ -26,26 +26,18 @@ export class TaskService {
       if (this.isFileNotFoundError(error)) {
         return [];
       }
-      // If JSON is invalid, return empty array
       return [];
     }
   }
 
-  async saveTasks(tasks: Task[]): Promise<void> {
+  async save(tasks: Task[]): Promise<void> {
     const content = JSON.stringify(tasks, null, 2);
     await writeFile(this.tasksFile, content, 'utf-8');
   }
 
-  async addTask(taskText: string): Promise<void> {
-    const tasks = await this.loadTasks();
-    tasks.push(new Task(taskText, false));
-    await this.saveTasks(tasks);
-  }
-
-  getTaskStats(tasks: Task[]): { total: number; completed: number } {
-    return {
-      total: tasks.length,
-      completed: tasks.filter((t) => t.completed).length,
-    };
+  async add(task: Task): Promise<void> {
+    const tasks = await this.findAll();
+    tasks.push(task);
+    await this.save(tasks);
   }
 }

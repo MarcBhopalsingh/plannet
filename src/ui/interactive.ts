@@ -1,6 +1,5 @@
 import { Renderer } from '@plannet/ui';
-import { Task } from '@plannet/types';
-import { TaskService } from '@plannet/services';
+import { Task, TaskRepository, getTaskStats } from '@plannet/tasks';
 import { TaskListView } from '@plannet/ui';
 import { KeypressHandler, Keybind } from '@plannet/io';
 import { KEYBINDS } from '@plannet/ui';
@@ -19,7 +18,7 @@ export class InteractiveTaskViewer {
 
   constructor(
     private readonly renderer: Renderer,
-    private readonly taskService: TaskService,
+    private readonly taskRepo: TaskRepository,
     tasks: Task[]
   ) {
     this.viewModel = new TaskListView(tasks);
@@ -39,7 +38,7 @@ export class InteractiveTaskViewer {
   }
 
   private render(): void {
-    const stats = this.taskService.getTaskStats(this.viewModel.getTasks());
+    const stats = getTaskStats(this.viewModel.getTasks());
     this.renderer.render(
       this.viewModel.getTasks(),
       this.viewModel.getSelectedIndex(),
@@ -111,7 +110,7 @@ export class InteractiveTaskViewer {
 
   private async handleQuit(): Promise<void> {
     try {
-      await this.taskService.saveTasks(this.viewModel.getTasksForSave());
+      await this.taskRepo.save(this.viewModel.getTasksForSave());
     } catch (error) {
       console.error('Error saving tasks:', error);
     } finally {

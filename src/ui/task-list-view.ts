@@ -1,4 +1,4 @@
-import { Task } from '@plannet/types';
+import { Task } from '@plannet/tasks';
 
 export class TaskListView {
   private selectedIndex = 0;

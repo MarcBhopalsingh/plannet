@@ -1,9 +1,9 @@
-import { TaskService } from '@plannet/services';
+import { TaskRepository } from '@plannet/tasks';
 import { Terminal } from '@plannet/io';
 
 export async function handleList(): Promise<void> {
-  const taskService = new TaskService();
-  const tasks = await taskService.loadTasks();
+  const taskRepo = new TaskRepository();
+  const tasks = await taskRepo.findAll();
 
   const terminal = new Terminal();
   tasks.forEach((task) => {

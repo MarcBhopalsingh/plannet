@@ -1,5 +1,5 @@
 import { Terminal } from '@plannet/io';
-import { Task } from '@plannet/types';
+import { Task, TaskStats } from '@plannet/tasks';
 import { KEYBINDS } from '@plannet/ui';
 
 const ANSI = {
@@ -33,7 +33,7 @@ export class Renderer {
   render(
     tasks: Task[],
     selectedIndex: number,
-    stats: { total: number; completed: number }
+    stats: TaskStats
   ): void {
     this.terminal.clearScreen();
 
