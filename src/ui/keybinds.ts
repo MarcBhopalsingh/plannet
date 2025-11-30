@@ -1,0 +1,28 @@
+import * as readline from 'readline';
+
+export interface Keybind {
+  description: string;
+  match: (key: readline.Key) => boolean;
+}
+
+export const KEYBINDS: Record<string, Keybind> = {
+  QUIT: {
+    description: 'q: quit',
+    match: (key: readline.Key) =>
+      key.name === 'q' || (key.name === 'c' && key.ctrl === true),
+  },
+  MOVE_UP: {
+    description: '↑/k: move up',
+    match: (key: readline.Key) =>
+      key.name === 'up' || (key.name === 'k' && !key.ctrl),
+  },
+  MOVE_DOWN: {
+    description: '↓/j: move down',
+    match: (key: readline.Key) =>
+      key.name === 'down' || (key.name === 'j' && !key.ctrl),
+  },
+  TOGGLE: {
+    description: 'space: toggle',
+    match: (key: readline.Key) => key.name === 'space',
+  },
+};
