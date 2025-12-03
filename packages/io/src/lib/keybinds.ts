@@ -1,6 +1,7 @@
 import * as readline from 'readline';
 
 export interface Keybind {
-  description: string;
+  key: string;
+  action: string;
   match: (key: readline.Key) => boolean;
 }

@@ -3,34 +3,46 @@ import { Keybind } from '@plannet/io';
 
 export const KEYBINDS: Record<string, Keybind> = {
   QUIT: {
-    description: 'q: quit',
+    key: 'q',
+    action: 'quit',
     match: (key: readline.Key) =>
       key.name === 'q' || (key.name === 'c' && key.ctrl === true),
   },
   MOVE_UP: {
-    description: '↑/k: move up',
+    key: '↑/k',
+    action: 'up',
     match: (key: readline.Key) =>
       key.name === 'up' || (key.name === 'k' && !key.ctrl),
   },
   MOVE_DOWN: {
-    description: '↓/j: move down',
+    key: '↓/j',
+    action: 'down',
     match: (key: readline.Key) =>
       key.name === 'down' || (key.name === 'j' && !key.ctrl),
   },
   TOGGLE: {
-    description: 'space: toggle',
+    key: '␣',
+    action: 'toggle',
     match: (key: readline.Key) => key.name === 'space',
   },
   ADD: {
-    description: 'a: add',
+    key: 'a',
+    action: 'add',
     match: (key: readline.Key) => key.name === 'a' && !key.ctrl,
   },
   EDIT: {
-    description: 'e: edit',
+    key: 'e',
+    action: 'edit',
     match: (key: readline.Key) => key.name === 'e' && !key.ctrl,
   },
   DELETE: {
-    description: 'd: delete',
+    key: 'd',
+    action: 'delete',
     match: (key: readline.Key) => key.name === 'd' && !key.ctrl,
+  },
+  SORT: {
+    key: 's',
+    action: 'sort',
+    match: (key: readline.Key) => key.name === 's' && !key.ctrl,
   },
 };

@@ -71,13 +71,11 @@ export function formatHelpBar(inputMode: boolean): string {
     return `  ${ANSI.BRIGHT_CYAN}Enter${ANSI.GRAY}:${ANSI.RESET} save  ${ANSI.GRAY}${ICONS.DOT}${ANSI.RESET}  ${ANSI.BRIGHT_CYAN}Esc${ANSI.GRAY}:${ANSI.RESET} cancel`;
   }
 
-  const helpItems = Object.values(KEYBINDS).map((kb) => {
-    const [key, action] = kb.description.split(': ');
-    return `${ANSI.BRIGHT_CYAN}${key}${ANSI.GRAY}:${ANSI.RESET} ${action}`;
-  });
+  const helpItems = Object.values(KEYBINDS).map(
+    (kb) => `${ANSI.BRIGHT_CYAN}${kb.key}${ANSI.RESET} ${kb.action}`
+  );
 
-  const separator = `  ${ANSI.GRAY}${ICONS.DOT}${ANSI.RESET}  `;
-  return `  ${helpItems.join(separator)}`;
+  return `  ${helpItems.join('  ')}`;
 }
 
 export function formatSeparator(width: number): string {

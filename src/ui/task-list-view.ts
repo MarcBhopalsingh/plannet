@@ -64,4 +64,9 @@ export class TaskListView {
       }
     }
   }
+
+  sortByCompletion(): void {
+    this.tasks.sort((a, b) => Number(a.completed) - Number(b.completed));
+    this.selectedIndex = 0;
+  }
 }

@@ -174,6 +174,14 @@ export class InteractiveTaskViewer {
           execute: () => this.viewModel.deleteSelectedTask(),
         },
       ],
+      [
+        KEYBINDS.SORT,
+        {
+          name: 'sort',
+          shouldRerender: true,
+          execute: () => this.viewModel.sortByCompletion(),
+        },
+      ],
     ]);
   }
 
