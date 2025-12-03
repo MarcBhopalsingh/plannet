@@ -25,7 +25,11 @@ export class Renderer {
     this.terminal.restoreMainScreen();
   }
 
-  render(tasks: Task[], selectedIndex: number, stats: TaskStats): void {
+  render(
+    tasks: ReadonlyArray<Task>,
+    selectedIndex: number,
+    stats: TaskStats
+  ): void {
     const terminalHeight = this.terminal.getRows();
 
     this.terminal.clearScreen();
@@ -45,7 +49,11 @@ export class Renderer {
     this.renderFooter(terminalHeight, false);
   }
 
-  renderInputMode(tasks: Task[], stats: TaskStats, inputText: string): void {
+  renderInputMode(
+    tasks: ReadonlyArray<Task>,
+    stats: TaskStats,
+    inputText: string
+  ): void {
     const terminalHeight = this.terminal.getRows();
     const width = this.terminal.getColumns();
 

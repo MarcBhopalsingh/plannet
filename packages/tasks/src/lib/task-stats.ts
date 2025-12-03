@@ -5,7 +5,7 @@ export interface TaskStats {
   completed: number;
 }
 
-export function getTaskStats(tasks: Task[]): TaskStats {
+export function getTaskStats(tasks: ReadonlyArray<Task>): TaskStats {
   return {
     total: tasks.length,
     completed: tasks.filter((t) => t.completed).length,

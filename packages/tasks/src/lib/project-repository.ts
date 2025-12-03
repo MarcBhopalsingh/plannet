@@ -50,7 +50,10 @@ export class ProjectRepository {
     await writeFile(join(projectDir, 'project.json'), content, 'utf-8');
   }
 
-  private async saveTasks(projectDir: string, tasks: Task[]): Promise<void> {
+  private async saveTasks(
+    projectDir: string,
+    tasks: ReadonlyArray<Task>
+  ): Promise<void> {
     const content = JSON.stringify(tasks, null, 2);
     await writeFile(join(projectDir, 'tasks.json'), content, 'utf-8');
   }
