@@ -1,10 +1,4 @@
-const ANSI = {
-  ALTERNATE_SCREEN_ON: '\x1b[?1049h',
-  ALTERNATE_SCREEN_OFF: '\x1b[?1049l',
-  CLEAR_SCREEN: '\x1b[2J\x1b[H',
-  HIDE_CURSOR: '\x1b[?25l',
-  SHOW_CURSOR: '\x1b[?25h',
-} as const;
+import { ANSI } from './ansi';
 
 export class Terminal {
   switchToAlternateScreen(): void {

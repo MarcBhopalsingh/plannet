@@ -1,16 +1,6 @@
-import { Terminal } from '@plannet/io';
+import { ANSI, Terminal } from '@plannet/io';
 import { Task, TaskStats } from '@plannet/tasks';
 import { KEYBINDS } from '@plannet/ui';
-
-const ANSI = {
-  RESET: '\x1b[0m',
-  BOLD: '\x1b[1m',
-  DIM: '\x1b[2m',
-  STRIKETHROUGH: '\x1b[9m',
-  GRAY: '\x1b[90m',
-  BRIGHT_GREEN: '\x1b[92m',
-  BRIGHT_CYAN: '\x1b[96m',
-} as const;
 
 const ICONS = {
   CHECKBOX_COMPLETED: '◉',
