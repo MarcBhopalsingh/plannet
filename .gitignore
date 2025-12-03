@@ -36,6 +36,7 @@ testem.log
 /typings
 tasks.txt
 tasks.json
+.plannet/
 
 # System Files
 .DS_Store
