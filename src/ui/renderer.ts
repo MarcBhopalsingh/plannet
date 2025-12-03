@@ -7,9 +7,10 @@ import {
   formatInputRow,
   formatInputSeparator,
   formatSeparator,
+  formatStatusMessage,
   formatTask,
 } from './formatters';
-import { ProjectView } from './project-view';
+import { ProjectView, StatusMessage } from './project-view';
 
 export class Renderer {
   private readonly terminal: Terminal;
@@ -30,6 +31,7 @@ export class Renderer {
     const terminalHeight = this.terminal.getRows();
     const tasks = view.getTasks();
     const stats = getTaskStats(tasks);
+    const status = view.getStatus();
 
     this.terminal.clearScreen();
     this.terminal.writeLine(
@@ -38,7 +40,7 @@ export class Renderer {
 
     if (tasks.length === 0) {
       formatEmptyState().forEach((line) => this.terminal.writeLine(line));
-      this.renderFooter(terminalHeight, false);
+      this.renderFooter(terminalHeight, false, status);
       return;
     }
 
@@ -48,7 +50,7 @@ export class Renderer {
       );
     });
 
-    this.renderFooter(terminalHeight, false);
+    this.renderFooter(terminalHeight, false, status);
   }
 
   renderInputMode(view: ProjectView, inputText: string): void {
@@ -69,14 +71,25 @@ export class Renderer {
     this.terminal.writeLine(formatInputSeparator(width));
     this.terminal.writeLine(formatInputRow(inputText));
 
-    this.renderFooter(terminalHeight, true);
+    // No status messages during input mode
+    this.renderFooter(terminalHeight, true, null);
   }
 
-  private renderFooter(terminalHeight: number, inputMode: boolean): void {
+  private renderFooter(
+    terminalHeight: number,
+    inputMode: boolean,
+    status: StatusMessage | null
+  ): void {
     const width = this.terminal.getColumns();
 
-    // Position cursor at bottom
-    this.terminal.moveCursor(terminalHeight - 1, 0);
+    // Calculate footer position (leave room for status if present)
+    const footerHeight = status ? 3 : 2;
+    this.terminal.moveCursor(terminalHeight - footerHeight, 0);
+
+    if (status) {
+      this.terminal.writeLine(formatStatusMessage(status.text, status.type));
+    }
+
     this.terminal.writeLine(formatSeparator(width));
     this.terminal.write(formatHelpBar(inputMode));
   }

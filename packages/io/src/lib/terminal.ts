@@ -1,4 +1,4 @@
-import { ANSI } from './ansi';
+import { ANSI, cursorTo } from './ansi';
 
 export class Terminal {
   switchToAlternateScreen(): void {
@@ -49,6 +49,6 @@ export class Terminal {
   }
 
   moveCursor(row: number, col: number): void {
-    process.stdout.write(`\x1b[${row};${col}H`);
+    process.stdout.write(cursorTo(row, col));
   }
 }

@@ -2,6 +2,7 @@ import { Renderer, ProjectView } from '@plannet/ui';
 import { Project, ProjectRepository } from '@plannet/tasks';
 import { InputManager, TextPrompt } from '@plannet/io';
 import { ActionRegistry } from './actions';
+import { StatusType } from './formatters';
 
 export class InteractiveTaskViewer {
   private readonly view: ProjectView;
@@ -9,6 +10,7 @@ export class InteractiveTaskViewer {
   private readonly textPrompt: TextPrompt;
   private readonly actions: ActionRegistry;
   private exitResolve: (() => void) | null = null;
+  private statusTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private readonly renderer: Renderer,
@@ -22,8 +24,26 @@ export class InteractiveTaskViewer {
     this.actions = new ActionRegistry(
       this.view,
       (initial) => this.promptForInput(initial),
-      () => this.exitResolve?.()
+      () => this.exitResolve?.(),
+      (message, type) => this.showStatus(message, type)
     );
+  }
+
+  private showStatus(message: string, type: StatusType = 'info'): void {
+    // Clear any existing timeout
+    if (this.statusTimeout) {
+      clearTimeout(this.statusTimeout);
+    }
+
+    this.view.setStatus(message, type);
+    this.render();
+
+    // Auto-clear after 1.5 seconds
+    this.statusTimeout = setTimeout(() => {
+      this.view.clearStatus();
+      this.render();
+      this.statusTimeout = null;
+    }, 1500);
   }
 
   async run(): Promise<void> {
@@ -40,6 +60,12 @@ export class InteractiveTaskViewer {
   }
 
   private async shutdown(): Promise<void> {
+    // Clear any pending status timeout
+    if (this.statusTimeout) {
+      clearTimeout(this.statusTimeout);
+      this.statusTimeout = null;
+    }
+
     try {
       await this.projectRepo.save(this.projectPath, this.project);
     } catch (error) {

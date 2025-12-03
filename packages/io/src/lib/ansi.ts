@@ -10,6 +10,7 @@ export const ANSI = {
   // Colors
   WHITE: '\x1b[97m',
   GRAY: '\x1b[90m',
+  YELLOW: '\x1b[93m',
   BRIGHT_GREEN: '\x1b[92m',
   BRIGHT_CYAN: '\x1b[96m',
 
@@ -22,4 +23,8 @@ export const ANSI = {
   HIDE_CURSOR: '\x1b[?25l',
   SHOW_CURSOR: '\x1b[?25h',
 } as const;
+
+export function cursorTo(row: number, col: number): string {
+  return `\x1b[${row};${col}H`;
+}
 

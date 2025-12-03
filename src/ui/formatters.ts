@@ -99,3 +99,24 @@ export function formatInputRow(inputText: string): string {
     : `${ANSI.DIM}Type a task...${ANSI.RESET}`;
   return `  ${ANSI.GRAY}›${ANSI.RESET} ${inputDisplay}`;
 }
+
+export type StatusType = 'success' | 'info' | 'warning';
+
+const STATUS_ICONS: Record<StatusType, string> = {
+  success: '✓',
+  info: '›',
+  warning: '!',
+};
+
+export function formatStatusMessage(
+  message: string,
+  type: StatusType = 'info'
+): string {
+  const colors: Record<StatusType, string> = {
+    success: ANSI.BRIGHT_GREEN,
+    info: ANSI.BRIGHT_CYAN,
+    warning: ANSI.YELLOW,
+  };
+  const icon = STATUS_ICONS[type];
+  return `  ${colors[type]}${icon}${ANSI.RESET} ${message}`;
+}

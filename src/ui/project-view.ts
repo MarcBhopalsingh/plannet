@@ -1,7 +1,14 @@
 import { Task, Project } from '@plannet/tasks';
+import { StatusType } from './formatters';
+
+export interface StatusMessage {
+  text: string;
+  type: StatusType;
+}
 
 export class ProjectView {
   private selectedIndex = 0;
+  private statusMessage: StatusMessage | null = null;
 
   constructor(private readonly project: Project) {}
 
@@ -38,6 +45,8 @@ export class ProjectView {
 
   addTask(task: Task): void {
     this.project.addTask(task);
+    // Move selection to the newly added task (last in list)
+    this.selectedIndex = this.project.tasks.length - 1;
   }
 
   getSelectedTask(): Task | null {
@@ -64,5 +73,16 @@ export class ProjectView {
       this.selectedIndex = len - 1;
     }
   }
-}
 
+  setStatus(text: string, type: StatusType = 'info'): void {
+    this.statusMessage = { text, type };
+  }
+
+  clearStatus(): void {
+    this.statusMessage = null;
+  }
+
+  getStatus(): StatusMessage | null {
+    return this.statusMessage;
+  }
+}
