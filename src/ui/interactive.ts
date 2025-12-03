@@ -86,13 +86,21 @@ export class InteractiveTaskViewer {
     };
   }
 
-  private promptForText(prompt: string): Promise<string | null> {
+  private promptForInput(): Promise<string | null> {
     return new Promise((resolve) => {
-      this.renderer.renderInputModal(prompt, '');
+      const stats = getTaskStats(this.viewModel.getTasks());
+      this.renderer.renderInputMode(this.viewModel.getTasks(), stats, '');
 
       this.inputManager.setHandler(
         this.createTextInputHandler(
-          (input) => this.renderer.renderInputModal(prompt, input),
+          (input) => {
+            const stats = getTaskStats(this.viewModel.getTasks());
+            this.renderer.renderInputMode(
+              this.viewModel.getTasks(),
+              stats,
+              input
+            );
+          },
           (result) => {
             this.enterNavigationMode();
             resolve(result);
@@ -174,7 +182,7 @@ export class InteractiveTaskViewer {
   }
 
   private async handleAdd(): Promise<void> {
-    const input = await this.promptForText('Add new task:');
+    const input = await this.promptForInput();
     if (input) {
       this.viewModel.addTask(new Task(input));
     }
