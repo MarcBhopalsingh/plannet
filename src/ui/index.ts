@@ -6,12 +6,12 @@ export { KEYBINDS } from './keybinds';
 export {
   ICONS,
   formatEmptyState,
+  formatHeader,
   formatHelpBar,
   formatInputRow,
   formatInputSeparator,
   formatProgressIcon,
   formatSeparator,
-  formatStats,
   formatTask,
 } from './formatters';
 

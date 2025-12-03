@@ -16,32 +16,27 @@ export function formatProgressIcon(percentage: number): string {
   if (percentage === 0) return ANSI.GRAY + ICONS.PROGRESS_EMPTY + ANSI.RESET;
   if (percentage === 100)
     return ANSI.BRIGHT_GREEN + ICONS.PROGRESS_FULL + ANSI.RESET;
-  return ANSI.BRIGHT_CYAN + ICONS.PROGRESS_PARTIAL + ANSI.RESET;
+  return ICONS.PROGRESS_PARTIAL;
 }
 
-export function formatProjectTitle(title: string): string {
-  return `\n  ${ANSI.BOLD}${ANSI.BRIGHT_CYAN}${title}${ANSI.RESET}\n`;
-}
-
-export function formatStats(total: number, completed: number): string {
+export function formatHeader(
+  title: string,
+  total: number,
+  completed: number
+): string {
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
   const progressIcon = formatProgressIcon(percentage);
-  const percentColor = percentage === 100 ? ANSI.BRIGHT_GREEN : ANSI.GRAY;
+  const countColor = percentage === 100 ? ANSI.BRIGHT_GREEN : ANSI.RESET;
+  const stats = `${progressIcon} ${countColor}${completed}/${total}${ANSI.RESET} tasks`;
 
-  return `  ${ANSI.GRAY}${progressIcon} ${ANSI.RESET}${total} task${
-    total !== 1 ? 's' : ''
-  } ${ANSI.GRAY}${ICONS.DOT}${ANSI.RESET} ${ANSI.BRIGHT_GREEN}${completed}${
-    ANSI.RESET
-  } completed ${ANSI.GRAY}${ICONS.DOT}${
-    ANSI.RESET
-  } ${percentColor}${percentage}%${ANSI.RESET}\n`;
+  return `\n  ${ANSI.BRIGHT_CYAN}▌${ANSI.RESET}${ANSI.BOLD} ${title}${ANSI.RESET}  ${ANSI.GRAY}${ICONS.DOT}${ANSI.RESET}  ${stats}\n`;
 }
 
 export function formatTask(task: Task, isSelected: boolean): string {
-  // Checkbox styling
+  // Checkbox styling - green for complete, default for incomplete
   const checkbox = task.completed
     ? `${ANSI.BRIGHT_GREEN}${ICONS.CHECKBOX_COMPLETED}${ANSI.RESET}`
-    : `${ANSI.BRIGHT_CYAN}${ICONS.CHECKBOX_INCOMPLETE}${ANSI.RESET}`;
+    : ICONS.CHECKBOX_INCOMPLETE;
 
   // Cursor/selection indicator
   const cursor = isSelected
@@ -56,35 +51,42 @@ export function formatTask(task: Task, isSelected: boolean): string {
     description = `${ANSI.BOLD}${description}${ANSI.RESET}`;
   }
 
-  // Add subtle spacing
-  const spacing = isSelected ? '' : ' ';
-
-  return `  ${cursor} ${checkbox} ${spacing}${description}`;
+  return `  ${cursor} ${checkbox} ${description}`;
 }
 
 export function formatEmptyState(): string[] {
   return [
     '',
-    `  ${ANSI.GRAY}${ICONS.DOT} No tasks yet. Press ${ANSI.BRIGHT_CYAN}a${ANSI.GRAY} to add one!${ANSI.RESET}`,
+    `  ${ANSI.GRAY}${ICONS.DOT} No tasks yet. Press ${ANSI.RESET}${ANSI.BOLD}a${ANSI.RESET}${ANSI.GRAY} to add one!${ANSI.RESET}`,
     '',
   ];
 }
 
 export function formatHelpBar(inputMode: boolean): string {
   if (inputMode) {
-    return `  ${ANSI.BRIGHT_CYAN}Enter${ANSI.GRAY}:${ANSI.RESET} save  ${ANSI.GRAY}${ICONS.DOT}${ANSI.RESET}  ${ANSI.BRIGHT_CYAN}Esc${ANSI.GRAY}:${ANSI.RESET} cancel`;
+    return `  ${ANSI.BOLD}Enter${ANSI.RESET} save  ${ANSI.GRAY}│${ANSI.RESET}  ${ANSI.BOLD}Esc${ANSI.RESET} cancel`;
   }
 
-  const helpItems = Object.values(KEYBINDS).map(
-    (kb) => `${ANSI.BRIGHT_CYAN}${kb.key}${ANSI.RESET} ${kb.action}`
+  // Group keybinds logically with pipe separators
+  const groups = [
+    [KEYBINDS.ADD, KEYBINDS.TOGGLE], // Primary actions
+    [KEYBINDS.MOVE_UP, KEYBINDS.MOVE_DOWN], // Navigation
+    [KEYBINDS.EDIT, KEYBINDS.DELETE], // Edit actions
+    [KEYBINDS.SORT, KEYBINDS.QUIT], // Misc
+  ];
+
+  const formattedGroups = groups.map((group) =>
+    group
+      .map((kb) => `${ANSI.BOLD}${kb.key}${ANSI.RESET} ${kb.action}`)
+      .join('  ')
   );
 
-  return `  ${helpItems.join('  ')}`;
+  return `  ${formattedGroups.join(`  ${ANSI.GRAY}│${ANSI.RESET}  `)}`;
 }
 
 export function formatSeparator(width: number): string {
-  const line = '─'.repeat(Math.max(0, width - 2));
-  return `${ANSI.GRAY}╭${line}╮${ANSI.RESET}`;
+  const line = '─'.repeat(Math.max(0, width));
+  return `${ANSI.GRAY}${line}${ANSI.RESET}`;
 }
 
 export function formatInputSeparator(width: number): string {
@@ -95,5 +97,5 @@ export function formatInputRow(inputText: string): string {
   const inputDisplay = inputText
     ? `${inputText}▎`
     : `${ANSI.DIM}Type a task...${ANSI.RESET}`;
-  return `  ${ANSI.BRIGHT_CYAN}›${ANSI.RESET} ${inputDisplay}`;
+  return `  ${ANSI.GRAY}›${ANSI.RESET} ${inputDisplay}`;
 }

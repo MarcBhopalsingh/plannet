@@ -8,6 +8,7 @@ export const ANSI = {
   STRIKETHROUGH: '\x1b[9m',
 
   // Colors
+  WHITE: '\x1b[97m',
   GRAY: '\x1b[90m',
   BRIGHT_GREEN: '\x1b[92m',
   BRIGHT_CYAN: '\x1b[96m',

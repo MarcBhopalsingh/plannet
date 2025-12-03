@@ -2,12 +2,11 @@ import { Terminal } from '@plannet/io';
 import { getTaskStats } from '@plannet/tasks';
 import {
   formatEmptyState,
+  formatHeader,
   formatHelpBar,
   formatInputRow,
   formatInputSeparator,
-  formatProjectTitle,
   formatSeparator,
-  formatStats,
   formatTask,
 } from './formatters';
 import { ProjectView } from './project-view';
@@ -33,15 +32,15 @@ export class Renderer {
     const stats = getTaskStats(tasks);
 
     this.terminal.clearScreen();
-    this.terminal.writeLine(formatProjectTitle(view.getTitle()));
+    this.terminal.writeLine(
+      formatHeader(view.getTitle(), stats.total, stats.completed)
+    );
 
     if (tasks.length === 0) {
       formatEmptyState().forEach((line) => this.terminal.writeLine(line));
       this.renderFooter(terminalHeight, false);
       return;
     }
-
-    this.terminal.writeLine(formatStats(stats.total, stats.completed));
 
     tasks.forEach((task, index) => {
       this.terminal.writeLine(
@@ -59,8 +58,9 @@ export class Renderer {
     const stats = getTaskStats(tasks);
 
     this.terminal.clearScreen();
-    this.terminal.writeLine(formatProjectTitle(view.getTitle()));
-    this.terminal.writeLine(formatStats(stats.total, stats.completed));
+    this.terminal.writeLine(
+      formatHeader(view.getTitle(), stats.total, stats.completed)
+    );
 
     tasks.forEach((task) => {
       this.terminal.writeLine(formatTask(task, false));
