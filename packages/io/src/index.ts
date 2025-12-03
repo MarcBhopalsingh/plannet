@@ -1,4 +1,4 @@
 export { Terminal } from './lib/terminal';
-export { KeypressHandler } from './lib/keypress-handler';
+export { InputManager } from './lib/input-manager';
+export type { InputHandler } from './lib/input-manager';
 export type { Keybind } from './lib/keybinds';
-export { TextInput } from './lib/text-input';

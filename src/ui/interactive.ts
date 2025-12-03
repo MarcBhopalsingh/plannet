@@ -1,7 +1,7 @@
 import { Renderer } from '@plannet/ui';
 import { Task, TaskRepository, getTaskStats } from '@plannet/tasks';
 import { TaskListView } from '@plannet/ui';
-import { KeypressHandler, Keybind } from '@plannet/io';
+import { InputManager, InputHandler, Keybind } from '@plannet/io';
 import { KEYBINDS } from '@plannet/ui';
 
 interface Command {
@@ -12,7 +12,7 @@ interface Command {
 
 export class InteractiveTaskViewer {
   private readonly viewModel: TaskListView;
-  private readonly keypressHandler: KeypressHandler;
+  private readonly inputManager: InputManager;
   private resolveExit!: () => void;
   private readonly exitPromise: Promise<void>;
 
@@ -22,7 +22,7 @@ export class InteractiveTaskViewer {
     tasks: Task[]
   ) {
     this.viewModel = new TaskListView(tasks);
-    this.keypressHandler = new KeypressHandler(KEYBINDS);
+    this.inputManager = new InputManager();
 
     this.exitPromise = new Promise((resolve) => {
       this.resolveExit = resolve;
@@ -32,7 +32,8 @@ export class InteractiveTaskViewer {
   async run(): Promise<void> {
     this.renderer.enterAlternateScreen();
     this.render();
-    this.setupKeypress();
+    this.inputManager.start();
+    this.enterNavigationMode();
 
     return this.exitPromise;
   }
@@ -44,6 +45,61 @@ export class InteractiveTaskViewer {
       this.viewModel.getSelectedIndex(),
       stats
     );
+  }
+
+  private enterNavigationMode(): void {
+    this.inputManager.setHandler(this.createNavigationHandler());
+  }
+
+  private createNavigationHandler(): InputHandler {
+    const commands = this.createCommandRegistry();
+
+    return async (str, key) => {
+      const keybind = Object.values(KEYBINDS).find((b) => b.match(key));
+      if (keybind) {
+        const command = commands.get(keybind);
+        if (command) {
+          await this.executeCommand(command);
+        }
+      }
+    };
+  }
+
+  private createTextInputHandler(
+    onUpdate: (input: string) => void,
+    onComplete: (result: string | null) => void
+  ): InputHandler {
+    let input = '';
+
+    return (str, key) => {
+      if (key.name === 'return') {
+        onComplete(input.trim() || null);
+      } else if (key.name === 'escape' || (key.name === 'c' && key.ctrl)) {
+        onComplete(null);
+      } else if (key.name === 'backspace') {
+        input = input.slice(0, -1);
+        onUpdate(input);
+      } else if (str && !key.ctrl && !key.meta) {
+        input += str;
+        onUpdate(input);
+      }
+    };
+  }
+
+  private promptForText(prompt: string): Promise<string | null> {
+    return new Promise((resolve) => {
+      this.renderer.renderInputModal(prompt, '');
+
+      this.inputManager.setHandler(
+        this.createTextInputHandler(
+          (input) => this.renderer.renderInputModal(prompt, input),
+          (result) => {
+            this.enterNavigationMode();
+            resolve(result);
+          }
+        )
+      );
+    });
   }
 
   private createCommandRegistry(): Map<Keybind, Command> {
@@ -80,15 +136,14 @@ export class InteractiveTaskViewer {
           execute: () => this.viewModel.toggleSelectedTask(),
         },
       ],
-      // WIP: This is broken because of conflicted ownership of stdin. REFACTOR_INPUT_MANAGEMENT.md will fix this.
-      // [
-      //   KEYBINDS.ADD,
-      //   {
-      //     name: 'add',
-      //     shouldRerender: false,
-      //     execute: () => this.handleAdd(),
-      //   },
-      // ],
+      [
+        KEYBINDS.ADD,
+        {
+          name: 'add',
+          shouldRerender: false,
+          execute: () => this.handleAdd(),
+        },
+      ],
     ]);
   }
 
@@ -106,42 +161,23 @@ export class InteractiveTaskViewer {
     }
   }
 
-  private setupKeypress(): void {
-    const commands = this.createCommandRegistry();
-
-    this.keypressHandler.start(async (keybind) => {
-      const command = commands.get(keybind);
-      if (command) {
-        await this.executeCommand(command);
-      }
-    });
-  }
-
   private async handleQuit(): Promise<void> {
     try {
       await this.taskRepo.save(this.viewModel.getTasksForSave());
     } catch (error) {
       console.error('Error saving tasks:', error);
     } finally {
-      this.keypressHandler.stop();
+      this.inputManager.stop();
       this.renderer.exitAlternateScreen();
       this.resolveExit();
     }
   }
 
   private async handleAdd(): Promise<void> {
-    this.keypressHandler.stop();
-
-    try {
-      const input = await this.renderer.promptForText('Add new task:');
-      if (input) {
-        this.viewModel.addTask(new Task(input));
-      }
-    } catch (error) {
-      console.error('Failed to add task:', error);
-    } finally {
-      this.render();
-      this.setupKeypress();
+    const input = await this.promptForText('Add new task:');
+    if (input) {
+      this.viewModel.addTask(new Task(input));
     }
+    this.render();
   }
 }

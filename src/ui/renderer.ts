@@ -50,6 +50,10 @@ export class Renderer {
     this.terminal.restoreMainScreen();
   }
 
+  renderInputModal(prompt: string, input: string): void {
+    this.inputModal.render(prompt, input);
+  }
+
   render(tasks: Task[], selectedIndex: number, stats: TaskStats): void {
     const terminalHeight = this.terminal.getRows();
     const FOOTER_LINES = 2; // separator + help text
@@ -192,9 +196,5 @@ export class Renderer {
     const spacing = isSelected ? '' : ' ';
 
     return `  ${cursor} ${checkbox} ${spacing}${description}`;
-  }
-
-  async promptForText(prompt: string): Promise<string | null> {
-    return this.inputModal.show(prompt);
   }
 }

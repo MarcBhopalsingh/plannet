@@ -1,12 +1,15 @@
 import * as readline from 'readline';
-import { Keybind } from './keybinds';
 
-export class KeypressHandler {
+export type InputHandler = (
+  str: string,
+  key: readline.Key
+) => void | Promise<void>;
+
+export class InputManager {
+  private currentHandler?: InputHandler;
   private keypressListener?: (str: string, key: readline.Key) => void;
 
-  constructor(private readonly keybinds: Record<string, Keybind>) {}
-
-  start(onKeybind: (keybind: Keybind) => void | Promise<void>): void {
+  start(): void {
     readline.emitKeypressEvents(process.stdin);
 
     if (process.stdin.isTTY && process.stdin.setRawMode) {
@@ -14,12 +17,8 @@ export class KeypressHandler {
     }
 
     this.keypressListener = async (str: string, key: readline.Key) => {
-      const keybind = Object.values(this.keybinds).find((bind) =>
-        bind.match(key)
-      );
-
-      if (keybind) {
-        await onKeybind(keybind);
+      if (this.currentHandler) {
+        await this.currentHandler(str, key);
       }
     };
 
@@ -38,4 +37,9 @@ export class KeypressHandler {
 
     process.stdin.pause();
   }
+
+  setHandler(handler: InputHandler): void {
+    this.currentHandler = handler;
+  }
 }
+
