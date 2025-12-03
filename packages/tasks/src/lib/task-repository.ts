@@ -1,8 +1,18 @@
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 import { Task } from './task';
 
 export class TaskRepository {
-  constructor(private readonly tasksFile: string = 'tasks.json') {}
+  private readonly filePath: string;
+  private readonly projectDir: string;
+
+  constructor(
+    private readonly project: string = 'inbox',
+    private readonly baseDir: string = '.plannet'
+  ) {
+    this.projectDir = join(baseDir, project);
+    this.filePath = join(this.projectDir, 'tasks.json');
+  }
 
   private isFileNotFoundError(error: unknown): error is NodeJS.ErrnoException {
     return (
@@ -14,7 +24,7 @@ export class TaskRepository {
 
   async findAll(): Promise<Task[]> {
     try {
-      const content = await readFile(this.tasksFile, 'utf-8');
+      const content = await readFile(this.filePath, 'utf-8');
       const data = JSON.parse(content);
       if (!Array.isArray(data)) {
         return [];
@@ -31,8 +41,9 @@ export class TaskRepository {
   }
 
   async save(tasks: Task[]): Promise<void> {
+    await mkdir(this.projectDir, { recursive: true });
     const content = JSON.stringify(tasks, null, 2);
-    await writeFile(this.tasksFile, content, 'utf-8');
+    await writeFile(this.filePath, content, 'utf-8');
   }
 
   async add(task: Task): Promise<void> {
