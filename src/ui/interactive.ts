@@ -1,19 +1,14 @@
-import { Renderer, ProjectView, KEYBINDS } from '@plannet/ui';
-import { Task, Project, ProjectRepository, getTaskStats } from '@plannet/tasks';
-import { InputManager, TextPrompt, Keybind } from '@plannet/io';
-
-interface Command {
-  name: string;
-  execute(): void | Promise<void>;
-  shouldRerender: boolean;
-}
+import { Renderer, ProjectView } from '@plannet/ui';
+import { Project, ProjectRepository, getTaskStats } from '@plannet/tasks';
+import { InputManager, TextPrompt } from '@plannet/io';
+import { ActionRegistry } from './actions';
 
 export class InteractiveTaskViewer {
-  private readonly viewModel: ProjectView;
+  private readonly view: ProjectView;
   private readonly inputManager: InputManager;
   private readonly textPrompt: TextPrompt;
-  private readonly commands: Map<Keybind, Command>;
-  private onExit: (() => void) | null = null;
+  private readonly actions: ActionRegistry;
+  private exitResolve: (() => void) | null = null;
 
   constructor(
     private readonly renderer: Renderer,
@@ -21,20 +16,24 @@ export class InteractiveTaskViewer {
     private readonly project: Project,
     private readonly projectPath: string
   ) {
-    this.viewModel = new ProjectView(project);
+    this.view = new ProjectView(project);
     this.inputManager = new InputManager();
     this.textPrompt = new TextPrompt(this.inputManager);
-    this.commands = this.buildCommands();
+    this.actions = new ActionRegistry(
+      this.view,
+      (initial) => this.promptForInput(initial),
+      () => this.exitResolve?.()
+    );
   }
 
   async run(): Promise<void> {
     this.renderer.enterAlternateScreen();
     this.render();
     this.inputManager.start();
-    this.enterNavigationMode();
+    this.setupInputHandler();
 
     await new Promise<void>((resolve) => {
-      this.onExit = resolve;
+      this.exitResolve = resolve;
     });
 
     await this.shutdown();
@@ -52,115 +51,30 @@ export class InteractiveTaskViewer {
   }
 
   private render(): void {
-    const stats = getTaskStats(this.viewModel.getTasks());
+    const stats = getTaskStats(this.view.getTasks());
     this.renderer.render(
-      this.viewModel.getTasks(),
-      this.viewModel.getSelectedIndex(),
+      this.view.getTasks(),
+      this.view.getSelectedIndex(),
       stats
     );
   }
 
-  private enterNavigationMode(): void {
+  private setupInputHandler(): void {
     this.inputManager.setHandler(async (_, key) => {
-      const keybind = Object.values(KEYBINDS).find((b) => b.match(key));
-      const command = keybind && this.commands.get(keybind);
-      if (command) await this.executeCommand(command);
+      const shouldRerender = await this.actions.execute(key);
+      if (shouldRerender) this.render();
     });
   }
 
-  private async executeCommand(command: Command): Promise<void> {
-    try {
-      await command.execute();
-    } catch (error) {
-      console.error(`Command '${command.name}' failed:`, error);
-    }
-    if (command.shouldRerender) this.render();
-  }
-
-  private buildCommands(): Map<Keybind, Command> {
-    return new Map([
-      [
-        KEYBINDS.QUIT,
-        { name: 'quit', shouldRerender: false, execute: () => this.onExit?.() },
-      ],
-      [
-        KEYBINDS.MOVE_UP,
-        {
-          name: 'moveUp',
-          shouldRerender: true,
-          execute: () => this.viewModel.moveUp(),
-        },
-      ],
-      [
-        KEYBINDS.MOVE_DOWN,
-        {
-          name: 'moveDown',
-          shouldRerender: true,
-          execute: () => this.viewModel.moveDown(),
-        },
-      ],
-      [
-        KEYBINDS.TOGGLE,
-        {
-          name: 'toggle',
-          shouldRerender: true,
-          execute: () => this.viewModel.toggleSelectedTask(),
-        },
-      ],
-      [
-        KEYBINDS.ADD,
-        { name: 'add', shouldRerender: false, execute: () => this.handleAdd() },
-      ],
-      [
-        KEYBINDS.EDIT,
-        {
-          name: 'edit',
-          shouldRerender: false,
-          execute: () => this.handleEdit(),
-        },
-      ],
-      [
-        KEYBINDS.DELETE,
-        {
-          name: 'delete',
-          shouldRerender: true,
-          execute: () => this.viewModel.deleteSelectedTask(),
-        },
-      ],
-      [
-        KEYBINDS.SORT,
-        {
-          name: 'sort',
-          shouldRerender: true,
-          execute: () => this.viewModel.sortByCompletion(),
-        },
-      ],
-    ]);
-  }
-
-  private async handleAdd(): Promise<void> {
-    const input = await this.promptForInput();
-    this.enterNavigationMode();
-    if (input) this.viewModel.addTask(new Task(input));
-    this.render();
-  }
-
-  private async handleEdit(): Promise<void> {
-    const task = this.viewModel.getSelectedTask();
-    if (!task) return;
-    const input = await this.promptForInput(task.description);
-    this.enterNavigationMode();
-    if (input) this.viewModel.updateSelectedTask(input);
-    this.render();
-  }
-
-  private promptForInput(initialValue = ''): Promise<string | null> {
-    return this.textPrompt.prompt({
+  private async promptForInput(initialValue = ''): Promise<string | null> {
+    const result = await this.textPrompt.prompt({
       initialValue,
       onUpdate: (input) => {
-        const stats = getTaskStats(this.viewModel.getTasks());
-        this.renderer.renderInputMode(this.viewModel.getTasks(), stats, input);
+        const stats = getTaskStats(this.view.getTasks());
+        this.renderer.renderInputMode(this.view.getTasks(), stats, input);
       },
     });
+    this.setupInputHandler();
+    return result;
   }
 }
