@@ -24,7 +24,10 @@ export class TaskListView {
 
   moveDown(): void {
     if (this.tasks.length > 0) {
-      this.selectedIndex = Math.min(this.tasks.length - 1, this.selectedIndex + 1);
+      this.selectedIndex = Math.min(
+        this.tasks.length - 1,
+        this.selectedIndex + 1
+      );
     }
   }
 
@@ -41,5 +44,14 @@ export class TaskListView {
   addTask(task: Task): void {
     this.tasks.push(task);
   }
-}
 
+  getSelectedTask(): Task | null {
+    return this.tasks[this.selectedIndex] ?? null;
+  }
+
+  updateSelectedTask(description: string): void {
+    if (this.tasks.length > 0) {
+      this.tasks[this.selectedIndex].updateDescription(description);
+    }
+  }
+}

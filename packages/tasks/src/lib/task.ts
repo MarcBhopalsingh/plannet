@@ -10,4 +10,8 @@ export class Task {
   toggleCompletion(): void {
     this.completed = !this.completed;
   }
+
+  updateDescription(description: string): void {
+    this.description = description;
+  }
 }

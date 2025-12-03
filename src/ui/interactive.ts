@@ -67,9 +67,10 @@ export class InteractiveTaskViewer {
 
   private createTextInputHandler(
     onUpdate: (input: string) => void,
-    onComplete: (result: string | null) => void
+    onComplete: (result: string | null) => void,
+    initialValue = ''
   ): InputHandler {
-    let input = '';
+    let input = initialValue;
 
     return (str, key) => {
       if (key.name === 'return') {
@@ -86,10 +87,14 @@ export class InteractiveTaskViewer {
     };
   }
 
-  private promptForInput(): Promise<string | null> {
+  private promptForInput(initialValue = ''): Promise<string | null> {
     return new Promise((resolve) => {
       const stats = getTaskStats(this.viewModel.getTasks());
-      this.renderer.renderInputMode(this.viewModel.getTasks(), stats, '');
+      this.renderer.renderInputMode(
+        this.viewModel.getTasks(),
+        stats,
+        initialValue
+      );
 
       this.inputManager.setHandler(
         this.createTextInputHandler(
@@ -104,7 +109,8 @@ export class InteractiveTaskViewer {
           (result) => {
             this.enterNavigationMode();
             resolve(result);
-          }
+          },
+          initialValue
         )
       );
     });
@@ -152,6 +158,14 @@ export class InteractiveTaskViewer {
           execute: () => this.handleAdd(),
         },
       ],
+      [
+        KEYBINDS.EDIT,
+        {
+          name: 'edit',
+          shouldRerender: false,
+          execute: () => this.handleEdit(),
+        },
+      ],
     ]);
   }
 
@@ -185,6 +199,17 @@ export class InteractiveTaskViewer {
     const input = await this.promptForInput();
     if (input) {
       this.viewModel.addTask(new Task(input));
+    }
+    this.render();
+  }
+
+  private async handleEdit(): Promise<void> {
+    const task = this.viewModel.getSelectedTask();
+    if (!task) return;
+
+    const input = await this.promptForInput(task.description);
+    if (input) {
+      this.viewModel.updateSelectedTask(input);
     }
     this.render();
   }

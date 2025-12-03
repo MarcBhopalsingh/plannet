@@ -25,4 +25,8 @@ export const KEYBINDS: Record<string, Keybind> = {
     description: 'a: add',
     match: (key: readline.Key) => key.name === 'a' && !key.ctrl,
   },
+  EDIT: {
+    description: 'e: edit',
+    match: (key: readline.Key) => key.name === 'e' && !key.ctrl,
+  },
 };
