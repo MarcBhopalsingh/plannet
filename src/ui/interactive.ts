@@ -1,5 +1,5 @@
 import { Renderer, ProjectView } from '@plannet/ui';
-import { Project, ProjectRepository, getTaskStats } from '@plannet/tasks';
+import { Project, ProjectRepository } from '@plannet/tasks';
 import { InputManager, TextPrompt } from '@plannet/io';
 import { ActionRegistry } from './actions';
 
@@ -51,12 +51,7 @@ export class InteractiveTaskViewer {
   }
 
   private render(): void {
-    const stats = getTaskStats(this.view.getTasks());
-    this.renderer.render(
-      this.view.getTasks(),
-      this.view.getSelectedIndex(),
-      stats
-    );
+    this.renderer.render(this.view);
   }
 
   private setupInputHandler(): void {
@@ -70,8 +65,7 @@ export class InteractiveTaskViewer {
     const result = await this.textPrompt.prompt({
       initialValue,
       onUpdate: (input) => {
-        const stats = getTaskStats(this.view.getTasks());
-        this.renderer.renderInputMode(this.view.getTasks(), stats, input);
+        this.renderer.renderInputMode(this.view, input);
       },
     });
     this.setupInputHandler();

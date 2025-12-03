@@ -5,6 +5,10 @@ export class ProjectView {
 
   constructor(private readonly project: Project) {}
 
+  getTitle(): string {
+    return this.project.title;
+  }
+
   getSelectedIndex(): number {
     return this.selectedIndex;
   }

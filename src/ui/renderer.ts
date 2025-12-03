@@ -1,14 +1,16 @@
 import { Terminal } from '@plannet/io';
-import { Task, TaskStats } from '@plannet/tasks';
+import { getTaskStats } from '@plannet/tasks';
 import {
   formatEmptyState,
   formatHelpBar,
   formatInputRow,
   formatInputSeparator,
+  formatProjectTitle,
   formatSeparator,
   formatStats,
   formatTask,
 } from './formatters';
+import { ProjectView } from './project-view';
 
 export class Renderer {
   private readonly terminal: Terminal;
@@ -25,14 +27,13 @@ export class Renderer {
     this.terminal.restoreMainScreen();
   }
 
-  render(
-    tasks: ReadonlyArray<Task>,
-    selectedIndex: number,
-    stats: TaskStats
-  ): void {
+  render(view: ProjectView): void {
     const terminalHeight = this.terminal.getRows();
+    const tasks = view.getTasks();
+    const stats = getTaskStats(tasks);
 
     this.terminal.clearScreen();
+    this.terminal.writeLine(formatProjectTitle(view.getTitle()));
 
     if (tasks.length === 0) {
       formatEmptyState().forEach((line) => this.terminal.writeLine(line));
@@ -43,21 +44,22 @@ export class Renderer {
     this.terminal.writeLine(formatStats(stats.total, stats.completed));
 
     tasks.forEach((task, index) => {
-      this.terminal.writeLine(formatTask(task, index === selectedIndex));
+      this.terminal.writeLine(
+        formatTask(task, index === view.getSelectedIndex())
+      );
     });
 
     this.renderFooter(terminalHeight, false);
   }
 
-  renderInputMode(
-    tasks: ReadonlyArray<Task>,
-    stats: TaskStats,
-    inputText: string
-  ): void {
+  renderInputMode(view: ProjectView, inputText: string): void {
     const terminalHeight = this.terminal.getRows();
     const width = this.terminal.getColumns();
+    const tasks = view.getTasks();
+    const stats = getTaskStats(tasks);
 
     this.terminal.clearScreen();
+    this.terminal.writeLine(formatProjectTitle(view.getTitle()));
     this.terminal.writeLine(formatStats(stats.total, stats.completed));
 
     tasks.forEach((task) => {

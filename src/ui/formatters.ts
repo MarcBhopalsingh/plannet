@@ -19,6 +19,10 @@ export function formatProgressIcon(percentage: number): string {
   return ANSI.BRIGHT_CYAN + ICONS.PROGRESS_PARTIAL + ANSI.RESET;
 }
 
+export function formatProjectTitle(title: string): string {
+  return `\n  ${ANSI.BOLD}${ANSI.BRIGHT_CYAN}${title}${ANSI.RESET}\n`;
+}
+
 export function formatStats(total: number, completed: number): string {
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
   const progressIcon = formatProgressIcon(percentage);
