@@ -166,6 +166,14 @@ export class InteractiveTaskViewer {
           execute: () => this.handleEdit(),
         },
       ],
+      [
+        KEYBINDS.DELETE,
+        {
+          name: 'delete',
+          shouldRerender: true,
+          execute: () => this.viewModel.deleteSelectedTask(),
+        },
+      ],
     ]);
   }
 

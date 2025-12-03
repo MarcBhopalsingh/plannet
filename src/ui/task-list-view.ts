@@ -54,4 +54,14 @@ export class TaskListView {
       this.tasks[this.selectedIndex].updateDescription(description);
     }
   }
+
+  deleteSelectedTask(): void {
+    if (this.tasks.length > 0) {
+      this.tasks.splice(this.selectedIndex, 1);
+      // Adjust selection if we deleted the last item
+      if (this.selectedIndex >= this.tasks.length && this.tasks.length > 0) {
+        this.selectedIndex = this.tasks.length - 1;
+      }
+    }
+  }
 }
