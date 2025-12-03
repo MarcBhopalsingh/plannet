@@ -1,12 +1,19 @@
 import { Renderer } from '@plannet/ui';
 import { InteractiveTaskViewer } from '@plannet/ui';
-import { TaskRepository } from '@plannet/tasks';
+import { ProjectRepository } from '@plannet/tasks';
+
+const DEFAULT_PROJECT = 'inbox';
 
 export async function handleInteractive(): Promise<void> {
-  const taskRepo = new TaskRepository();
-  const tasks = await taskRepo.findAll();
+  const projectRepo = new ProjectRepository();
+  const project = await projectRepo.load(DEFAULT_PROJECT);
 
   const renderer = new Renderer();
-  const viewer = new InteractiveTaskViewer(renderer, taskRepo, tasks);
+  const viewer = new InteractiveTaskViewer(
+    renderer,
+    projectRepo,
+    project,
+    DEFAULT_PROJECT
+  );
   await viewer.run();
 }

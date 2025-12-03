@@ -1,5 +1,5 @@
 import { Renderer } from '@plannet/ui';
-import { Task, TaskRepository, getTaskStats } from '@plannet/tasks';
+import { Task, Project, ProjectRepository, getTaskStats } from '@plannet/tasks';
 import { TaskListView } from '@plannet/ui';
 import { InputManager, InputHandler, Keybind } from '@plannet/io';
 import { KEYBINDS } from '@plannet/ui';
@@ -18,10 +18,11 @@ export class InteractiveTaskViewer {
 
   constructor(
     private readonly renderer: Renderer,
-    private readonly taskRepo: TaskRepository,
-    tasks: Task[]
+    private readonly projectRepo: ProjectRepository,
+    private readonly project: Project,
+    private readonly projectPath: string
   ) {
-    this.viewModel = new TaskListView(tasks);
+    this.viewModel = new TaskListView(project.tasks);
     this.inputManager = new InputManager();
 
     this.exitPromise = new Promise((resolve) => {
@@ -201,9 +202,10 @@ export class InteractiveTaskViewer {
 
   private async handleQuit(): Promise<void> {
     try {
-      await this.taskRepo.save(this.viewModel.getTasksForSave());
+      this.project.tasks = this.viewModel.getTasksForSave();
+      await this.projectRepo.save(this.projectPath, this.project);
     } catch (error) {
-      console.error('Error saving tasks:', error);
+      console.error('Error saving project:', error);
     } finally {
       this.inputManager.stop();
       this.renderer.exitAlternateScreen();

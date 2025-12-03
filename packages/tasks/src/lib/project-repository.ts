@@ -1,35 +1,62 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { ProjectData } from './types';
+import { Project } from './project';
+import { Task } from './task';
 
 export class ProjectRepository {
-  private readonly filePath: string;
-  private readonly projectDir: string;
+  constructor(private readonly baseDir: string = '.plannet') {}
 
-  constructor(
-    private readonly project: string = 'inbox',
-    private readonly baseDir: string = '.plannet'
-  ) {
-    this.projectDir = join(baseDir, project);
-    this.filePath = join(this.projectDir, 'project.json');
+  async load(path: string): Promise<Project> {
+    const projectDir = join(this.baseDir, path);
+    const title = await this.loadTitle(projectDir, path);
+    const tasks = await this.loadTasks(projectDir);
+    return new Project(title, tasks);
   }
 
-  async load(): Promise<ProjectData> {
+  async save(path: string, project: Project): Promise<void> {
+    const projectDir = join(this.baseDir, path);
+    await mkdir(projectDir, { recursive: true });
+    await this.saveTitle(projectDir, project.title);
+    await this.saveTasks(projectDir, project.tasks);
+  }
+
+  private async loadTitle(projectDir: string, path: string): Promise<string> {
     try {
-      const content = await readFile(this.filePath, 'utf-8');
-      return JSON.parse(content);
+      const content = await readFile(join(projectDir, 'project.json'), 'utf-8');
+      const data = JSON.parse(content);
+      return data.title ?? this.defaultTitle(path);
     } catch {
-      return { title: this.defaultTitle() };
+      return this.defaultTitle(path);
     }
   }
 
-  async save(meta: ProjectData): Promise<void> {
-    await mkdir(this.projectDir, { recursive: true });
-    const content = JSON.stringify(meta, null, 2);
-    await writeFile(this.filePath, content, 'utf-8');
+  private async loadTasks(projectDir: string): Promise<Task[]> {
+    try {
+      const content = await readFile(join(projectDir, 'tasks.json'), 'utf-8');
+      const data = JSON.parse(content);
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      return data.map(
+        (item) => new Task(item.description, item.completed ?? false)
+      );
+    } catch {
+      return [];
+    }
   }
 
-  private defaultTitle(): string {
-    return this.project.charAt(0).toUpperCase() + this.project.slice(1);
+  private async saveTitle(projectDir: string, title: string): Promise<void> {
+    const content = JSON.stringify({ title }, null, 2);
+    await writeFile(join(projectDir, 'project.json'), content, 'utf-8');
+  }
+
+  private async saveTasks(projectDir: string, tasks: Task[]): Promise<void> {
+    const content = JSON.stringify(tasks, null, 2);
+    await writeFile(join(projectDir, 'tasks.json'), content, 'utf-8');
+  }
+
+  private defaultTitle(path: string): string {
+    return path.charAt(0).toUpperCase() + path.slice(1);
   }
 }
+
