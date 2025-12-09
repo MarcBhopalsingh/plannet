@@ -58,9 +58,7 @@ export class ActionRegistry {
           const task = this.workspace.getSelectedTask();
           this.workspace.toggleSelectedTask();
           if (task) {
-            const message = task.completed
-              ? 'Task completed!'
-              : 'Task uncompleted';
+            const message = task.completed ? 'Task completed!' : 'Task uncompleted';
             const type = task.completed ? 'success' : 'info';
             this.showStatus(message, type);
           }

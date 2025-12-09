@@ -1,10 +1,7 @@
 import { Task } from './task';
 
 export class Project {
-  constructor(
-    public title: string,
-    private _tasks: Task[] = []
-  ) {}
+  constructor(public title: string, private _tasks: Task[] = []) {}
 
   get tasks(): ReadonlyArray<Task> {
     return this._tasks;
@@ -34,4 +31,3 @@ export class Project {
     this._tasks.sort((a, b) => Number(a.completed) - Number(b.completed));
   }
 }
-

@@ -55,15 +55,7 @@ export class Renderer {
     const stats = getTaskStats(tasks);
     const isCollapsed = view.isCollapsed();
 
-    this.terminal.writeLine(
-      formatHeader(
-        view.getTitle(),
-        stats.total,
-        stats.completed,
-        isActive,
-        isCollapsed
-      )
-    );
+    this.terminal.writeLine(formatHeader(view.getTitle(), stats.total, stats.completed, isActive, isCollapsed));
 
     // Don't render tasks if collapsed
     if (isCollapsed) {
@@ -102,9 +94,7 @@ export class Renderer {
       const tasks = view.getTasks();
       const stats = getTaskStats(tasks);
 
-      this.terminal.writeLine(
-        formatHeader(view.getTitle(), stats.total, stats.completed)
-      );
+      this.terminal.writeLine(formatHeader(view.getTitle(), stats.total, stats.completed));
 
       tasks.forEach((task) => {
         this.terminal.writeLine(formatTask(task, false));
@@ -118,11 +108,7 @@ export class Renderer {
     this.renderFooter(terminalHeight, true, null);
   }
 
-  private renderFooter(
-    terminalHeight: number,
-    inputMode: boolean,
-    status: StatusMessage | null
-  ): void {
+  private renderFooter(terminalHeight: number, inputMode: boolean, status: StatusMessage | null): void {
     const width = this.terminal.getColumns();
 
     // Calculate footer position (leave room for status if present)

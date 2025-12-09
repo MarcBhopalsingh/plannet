@@ -8,10 +8,7 @@
       "executor": "nx:run-commands",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "commands": [
-          "nx run plannet:build:compile",
-          "nx run plannet:build:resolve-paths"
-        ],
+        "commands": ["nx run plannet:build:compile", "nx run plannet:build:resolve-paths"],
         "parallel": false
       }
     },

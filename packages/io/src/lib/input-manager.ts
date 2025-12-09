@@ -1,9 +1,6 @@
 import * as readline from 'readline';
 
-export type InputHandler = (
-  str: string,
-  key: readline.Key
-) => void | Promise<void>;
+export type InputHandler = (str: string, key: readline.Key) => void | Promise<void>;
 
 export class InputManager {
   private currentHandler?: InputHandler;
@@ -42,4 +39,3 @@ export class InputManager {
     this.currentHandler = handler;
   }
 }
-

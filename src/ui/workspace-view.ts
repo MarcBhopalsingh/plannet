@@ -21,8 +21,7 @@ export class WorkspaceView {
 
   nextProject(): void {
     if (this.projectViews.length > 1) {
-      this.activeProjectIndex =
-        (this.activeProjectIndex + 1) % this.projectViews.length;
+      this.activeProjectIndex = (this.activeProjectIndex + 1) % this.projectViews.length;
     }
   }
 
@@ -50,9 +49,7 @@ export class WorkspaceView {
 
     // Add to next project (with wrap)
     const nextIndex = (this.activeProjectIndex + 1) % this.projectViews.length;
-    this.projectViews[nextIndex].addTask(
-      new Task(task.description, task.completed)
-    );
+    this.projectViews[nextIndex].addTask(new Task(task.description, task.completed));
 
     return true;
   }

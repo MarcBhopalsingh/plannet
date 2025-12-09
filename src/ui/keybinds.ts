@@ -5,20 +5,17 @@ export const KEYBINDS: Record<string, Keybind> = {
   QUIT: {
     key: 'q',
     action: 'quit',
-    match: (key: readline.Key) =>
-      key.name === 'q' || (key.name === 'c' && key.ctrl === true),
+    match: (key: readline.Key) => key.name === 'q' || (key.name === 'c' && key.ctrl === true),
   },
   MOVE_UP: {
     key: '↑/k',
     action: 'up',
-    match: (key: readline.Key) =>
-      key.name === 'up' || (key.name === 'k' && !key.ctrl),
+    match: (key: readline.Key) => key.name === 'up' || (key.name === 'k' && !key.ctrl),
   },
   MOVE_DOWN: {
     key: '↓/j',
     action: 'down',
-    match: (key: readline.Key) =>
-      key.name === 'down' || (key.name === 'j' && !key.ctrl),
+    match: (key: readline.Key) => key.name === 'down' || (key.name === 'j' && !key.ctrl),
   },
   TOGGLE: {
     key: '␣',

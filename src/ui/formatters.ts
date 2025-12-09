@@ -11,13 +11,7 @@ import { Task } from '@plannet/tasks';
 import { KEYBINDS } from './keybinds';
 
 // Re-export generic formatters for convenience
-export {
-  formatInputRow,
-  formatInputSeparator,
-  formatProgressIcon,
-  formatSeparator,
-  formatStatusMessage,
-};
+export { formatInputRow, formatInputSeparator, formatProgressIcon, formatSeparator, formatStatusMessage };
 export type { StatusType } from '@plannet/io';
 
 /**
@@ -49,12 +43,8 @@ export function formatHeader(
   const collapseIcon = isCollapsed ? ICONS.COLLAPSED : ICONS.EXPANDED;
 
   // Active: blue bar + bold title | Inactive: gray bar + dim title
-  const bar = isActive
-    ? `${ANSI.BLUE}▌${ANSI.RESET}`
-    : `${ANSI.GRAY}▌${ANSI.RESET}`;
-  const titleStyle = isActive
-    ? `${ANSI.BOLD} ${title}${ANSI.RESET}`
-    : `${ANSI.DIM} ${title}${ANSI.RESET}`;
+  const bar = isActive ? `${ANSI.BLUE}▌${ANSI.RESET}` : `${ANSI.GRAY}▌${ANSI.RESET}`;
+  const titleStyle = isActive ? `${ANSI.BOLD} ${title}${ANSI.RESET}` : `${ANSI.DIM} ${title}${ANSI.RESET}`;
   const iconStyle = `${ANSI.GRAY}${collapseIcon}${ANSI.RESET}`;
 
   return `  ${bar}${titleStyle} ${iconStyle}  ${stats}\n`;
@@ -96,19 +86,12 @@ export function formatHelpBar(inputMode: boolean): string {
     [KEYBINDS.ADD, KEYBINDS.TOGGLE], // Primary actions
     [KEYBINDS.MOVE_UP, KEYBINDS.MOVE_DOWN], // Navigation
     [KEYBINDS.EDIT, KEYBINDS.DELETE], // Edit actions
-    [
-      KEYBINDS.ADD_PROJECT,
-      KEYBINDS.NEXT_PROJECT,
-      KEYBINDS.TOGGLE_FOLD,
-      KEYBINDS.TOGGLE_FOLD_ALL,
-    ], // Project actions
+    [KEYBINDS.ADD_PROJECT, KEYBINDS.NEXT_PROJECT, KEYBINDS.TOGGLE_FOLD, KEYBINDS.TOGGLE_FOLD_ALL], // Project actions
     [KEYBINDS.SORT, KEYBINDS.QUIT], // Misc
   ];
 
   const formattedGroups = groups.map((group) =>
-    group
-      .map((kb) => `${ANSI.BOLD}${kb.key}${ANSI.RESET} ${kb.action}`)
-      .join('  ')
+    group.map((kb) => `${ANSI.BOLD}${kb.key}${ANSI.RESET} ${kb.action}`).join('  ')
   );
 
   return `  ${formattedGroups.join(`  ${ANSI.GRAY}│${ANSI.RESET}  `)}`;

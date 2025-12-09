@@ -21,10 +21,7 @@ const STATUS_COLORS: Record<StatusType, string> = {
 /**
  * Format a status/toast message with icon and color
  */
-export function formatStatusMessage(
-  message: string,
-  type: StatusType = 'info'
-): string {
+export function formatStatusMessage(message: string, type: StatusType = 'info'): string {
   const icon = STATUS_ICONS[type];
   const color = STATUS_COLORS[type];
   return `  ${color}${icon}${ANSI.RESET} ${message}`;
@@ -48,13 +45,8 @@ export function formatInputSeparator(width: number): string {
 /**
  * Format a text input row with cursor
  */
-export function formatInputRow(
-  inputText: string,
-  placeholder = 'Type here...'
-): string {
-  const inputDisplay = inputText
-    ? `${inputText}▎`
-    : `${ANSI.DIM}${placeholder}${ANSI.RESET}`;
+export function formatInputRow(inputText: string, placeholder = 'Type here...'): string {
+  const inputDisplay = inputText ? `${inputText}▎` : `${ANSI.DIM}${placeholder}${ANSI.RESET}`;
   return `  ${ANSI.GRAY}›${ANSI.RESET} ${inputDisplay}`;
 }
 
@@ -72,7 +64,6 @@ export const PROGRESS_ICONS = {
  */
 export function formatProgressIcon(percentage: number): string {
   if (percentage === 0) return ANSI.GRAY + PROGRESS_ICONS.EMPTY + ANSI.RESET;
-  if (percentage === 100)
-    return ANSI.BRIGHT_GREEN + PROGRESS_ICONS.FULL + ANSI.RESET;
+  if (percentage === 100) return ANSI.BRIGHT_GREEN + PROGRESS_ICONS.FULL + ANSI.RESET;
   return PROGRESS_ICONS.PARTIAL;
 }

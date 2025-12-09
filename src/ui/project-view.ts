@@ -45,10 +45,7 @@ export class ProjectView {
 
   moveDown(): void {
     if (this.project.tasks.length > 0) {
-      this.selectedIndex = Math.min(
-        this.project.tasks.length - 1,
-        this.selectedIndex + 1
-      );
+      this.selectedIndex = Math.min(this.project.tasks.length - 1, this.selectedIndex + 1);
     }
   }
 

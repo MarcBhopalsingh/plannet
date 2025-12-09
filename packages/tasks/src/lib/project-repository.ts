@@ -55,9 +55,7 @@ export class ProjectRepository {
       if (!Array.isArray(data)) {
         return [];
       }
-      return data.map(
-        (item) => new Task(item.description, item.completed ?? false)
-      );
+      return data.map((item) => new Task(item.description, item.completed ?? false));
     } catch {
       return [];
     }
@@ -68,10 +66,7 @@ export class ProjectRepository {
     await writeFile(join(projectDir, 'project.json'), content, 'utf-8');
   }
 
-  private async saveTasks(
-    projectDir: string,
-    tasks: ReadonlyArray<Task>
-  ): Promise<void> {
+  private async saveTasks(projectDir: string, tasks: ReadonlyArray<Task>): Promise<void> {
     const content = JSON.stringify(tasks, null, 2);
     await writeFile(join(projectDir, 'tasks.json'), content, 'utf-8');
   }
@@ -80,4 +75,3 @@ export class ProjectRepository {
     return path.charAt(0).toUpperCase() + path.slice(1);
   }
 }
-
