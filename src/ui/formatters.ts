@@ -72,6 +72,7 @@ export function formatHelpBar(inputMode: boolean): string {
     [KEYBINDS.ADD, KEYBINDS.TOGGLE], // Primary actions
     [KEYBINDS.MOVE_UP, KEYBINDS.MOVE_DOWN], // Navigation
     [KEYBINDS.EDIT, KEYBINDS.DELETE], // Edit actions
+    [KEYBINDS.ADD_PROJECT, KEYBINDS.MOVE_TO_PROJECT, KEYBINDS.NEXT_PROJECT], // Project actions
     [KEYBINDS.SORT, KEYBINDS.QUIT], // Misc
   ];
 

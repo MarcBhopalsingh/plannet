@@ -1,49 +1,58 @@
-import { Renderer, ProjectView } from '@plannet/ui';
+import { Renderer } from './renderer';
 import { Project, ProjectRepository } from '@plannet/tasks';
 import { InputManager, TextPrompt } from '@plannet/io';
 import { ActionRegistry } from './actions';
 import { StatusType } from './formatters';
+import { WorkspaceView } from './workspace-view';
 
 export class InteractiveTaskViewer {
-  private readonly view: ProjectView;
+  private readonly workspace: WorkspaceView;
   private readonly inputManager: InputManager;
   private readonly textPrompt: TextPrompt;
   private readonly actions: ActionRegistry;
   private exitResolve: (() => void) | null = null;
   private statusTimeout: ReturnType<typeof setTimeout> | null = null;
+  private projectPaths: string[] = [];
 
   constructor(
     private readonly renderer: Renderer,
     private readonly projectRepo: ProjectRepository,
-    private readonly project: Project,
-    private readonly projectPath: string
+    projects: Array<{ path: string; project: Project }>
   ) {
-    this.view = new ProjectView(project);
+    this.projectPaths = projects.map((p) => p.path);
+    this.workspace = new WorkspaceView(projects.map((p) => p.project));
     this.inputManager = new InputManager();
     this.textPrompt = new TextPrompt(this.inputManager);
     this.actions = new ActionRegistry(
-      this.view,
+      this.workspace,
       (initial) => this.promptForInput(initial),
       () => this.exitResolve?.(),
-      (message, type) => this.showStatus(message, type)
+      (message, type) => this.showStatus(message, type),
+      (name) => this.handleAddProject(name)
     );
   }
 
   private showStatus(message: string, type: StatusType = 'info'): void {
-    // Clear any existing timeout
     if (this.statusTimeout) {
       clearTimeout(this.statusTimeout);
     }
 
-    this.view.setStatus(message, type);
+    this.workspace.getActiveProjectView().setStatus(message, type);
     this.render();
 
-    // Auto-clear after 1.5 seconds
     this.statusTimeout = setTimeout(() => {
-      this.view.clearStatus();
+      this.workspace.getActiveProjectView().clearStatus();
       this.render();
       this.statusTimeout = null;
     }, 1500);
+  }
+
+  private async handleAddProject(name: string): Promise<void> {
+    // Create path from name (lowercase, replace spaces with hyphens)
+    const path = name.toLowerCase().replace(/\s+/g, '-');
+    const project = await this.projectRepo.create(path, name);
+    this.workspace.addProject(project);
+    this.projectPaths.push(path);
   }
 
   async run(): Promise<void> {
@@ -60,16 +69,21 @@ export class InteractiveTaskViewer {
   }
 
   private async shutdown(): Promise<void> {
-    // Clear any pending status timeout
     if (this.statusTimeout) {
       clearTimeout(this.statusTimeout);
       this.statusTimeout = null;
     }
 
     try {
-      await this.projectRepo.save(this.projectPath, this.project);
+      // Save all projects
+      const projectViews = this.workspace.getAllProjectViews();
+      for (let i = 0; i < projectViews.length; i++) {
+        const project = projectViews[i].getProject();
+        const path = this.projectPaths[i];
+        await this.projectRepo.save(path, project);
+      }
     } catch (error) {
-      console.error('Error saving project:', error);
+      console.error('Error saving projects:', error);
     } finally {
       this.inputManager.stop();
       this.renderer.exitAlternateScreen();
@@ -77,7 +91,7 @@ export class InteractiveTaskViewer {
   }
 
   private render(): void {
-    this.renderer.render(this.view);
+    this.renderer.render(this.workspace);
   }
 
   private setupInputHandler(): void {
@@ -91,7 +105,7 @@ export class InteractiveTaskViewer {
     const result = await this.textPrompt.prompt({
       initialValue,
       onUpdate: (input) => {
-        this.renderer.renderInputMode(this.view, input);
+        this.renderer.renderInputMode(this.workspace, input);
       },
     });
     this.setupInputHandler();

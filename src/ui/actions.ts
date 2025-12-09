@@ -1,5 +1,5 @@
 import { Task } from '@plannet/tasks';
-import { ProjectView } from './project-view';
+import { WorkspaceView } from './workspace-view';
 import { KEYBINDS } from './keybinds';
 import { Keybind } from '@plannet/io';
 import { StatusType } from './formatters';
@@ -11,15 +11,17 @@ interface Action {
 }
 
 export type StatusCallback = (message: string, type?: StatusType) => void;
+export type AddProjectCallback = (name: string) => Promise<void>;
 
 export class ActionRegistry {
   private readonly actions: Action[];
 
   constructor(
-    private readonly view: ProjectView,
+    private readonly workspace: WorkspaceView,
     private readonly prompt: (initial?: string) => Promise<string | null>,
     private readonly quit: () => void,
-    private readonly showStatus: StatusCallback = () => {}
+    private readonly showStatus: StatusCallback = () => {},
+    private readonly addProject: AddProjectCallback = async () => {}
   ) {
     this.actions = this.defineActions();
   }
@@ -42,19 +44,19 @@ export class ActionRegistry {
       {
         keybind: KEYBINDS.MOVE_UP,
         rerender: true,
-        execute: () => this.view.moveUp(),
+        execute: () => this.workspace.moveUp(),
       },
       {
         keybind: KEYBINDS.MOVE_DOWN,
         rerender: true,
-        execute: () => this.view.moveDown(),
+        execute: () => this.workspace.moveDown(),
       },
       {
         keybind: KEYBINDS.TOGGLE,
         rerender: true,
         execute: () => {
-          const task = this.view.getSelectedTask();
-          this.view.toggleSelectedTask();
+          const task = this.workspace.getSelectedTask();
+          this.workspace.toggleSelectedTask();
           if (task) {
             const message = task.completed
               ? 'Task completed!'
@@ -68,7 +70,7 @@ export class ActionRegistry {
         keybind: KEYBINDS.DELETE,
         rerender: true,
         execute: () => {
-          this.view.deleteSelectedTask();
+          this.workspace.deleteSelectedTask();
           this.showStatus('Task deleted', 'warning');
         },
       },
@@ -76,7 +78,7 @@ export class ActionRegistry {
         keybind: KEYBINDS.SORT,
         rerender: true,
         execute: () => {
-          this.view.sortByCompletion();
+          this.workspace.sortByCompletion();
           this.showStatus('Sorted by completion', 'info');
         },
       },
@@ -86,7 +88,7 @@ export class ActionRegistry {
         execute: async () => {
           const input = await this.prompt();
           if (input) {
-            this.view.addTask(new Task(input));
+            this.workspace.addTask(new Task(input));
             this.showStatus('Task added', 'success');
           }
         },
@@ -95,14 +97,42 @@ export class ActionRegistry {
         keybind: KEYBINDS.EDIT,
         rerender: true,
         execute: async () => {
-          const task = this.view.getSelectedTask();
+          const task = this.workspace.getSelectedTask();
           if (!task) return;
           const input = await this.prompt(task.description);
           if (input) {
-            this.view.updateSelectedTask(input);
+            this.workspace.updateSelectedTask(input);
             this.showStatus('Task updated', 'success');
           }
         },
+      },
+      {
+        keybind: KEYBINDS.ADD_PROJECT,
+        rerender: true,
+        execute: async () => {
+          const input = await this.prompt();
+          if (input) {
+            await this.addProject(input);
+            this.showStatus('Project added', 'success');
+          }
+        },
+      },
+      {
+        keybind: KEYBINDS.MOVE_TO_PROJECT,
+        rerender: true,
+        execute: () => {
+          const moved = this.workspace.moveSelectedTaskToNextProject();
+          if (moved) {
+            this.showStatus('Task moved to next project', 'info');
+          } else {
+            this.showStatus('No task to move', 'warning');
+          }
+        },
+      },
+      {
+        keybind: KEYBINDS.NEXT_PROJECT,
+        rerender: true,
+        execute: () => this.workspace.nextProject(),
       },
     ];
   }

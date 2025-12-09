@@ -1,10 +1,28 @@
-import { readFile, writeFile, mkdir } from 'fs/promises';
+import { readFile, writeFile, mkdir, readdir } from 'fs/promises';
 import { join } from 'path';
 import { Project } from './project';
 import { Task } from './task';
 
 export class ProjectRepository {
   constructor(private readonly baseDir: string = '.plannet') {}
+
+  async listProjects(): Promise<string[]> {
+    try {
+      const entries = await readdir(this.baseDir, { withFileTypes: true });
+      return entries
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort();
+    } catch {
+      return [];
+    }
+  }
+
+  async create(path: string, title: string): Promise<Project> {
+    const project = new Project(title, []);
+    await this.save(path, project);
+    return project;
+  }
 
   async load(path: string): Promise<Project> {
     const projectDir = join(this.baseDir, path);

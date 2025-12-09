@@ -85,4 +85,8 @@ export class ProjectView {
   getStatus(): StatusMessage | null {
     return this.statusMessage;
   }
+
+  getProject(): Project {
+    return this.project;
+  }
 }

@@ -45,4 +45,19 @@ export const KEYBINDS: Record<string, Keybind> = {
     action: 'sort',
     match: (key: readline.Key) => key.name === 's' && !key.ctrl,
   },
+  ADD_PROJECT: {
+    key: 'p',
+    action: 'project',
+    match: (key: readline.Key) => key.name === 'p' && !key.ctrl,
+  },
+  MOVE_TO_PROJECT: {
+    key: 'm',
+    action: 'move',
+    match: (key: readline.Key) => key.name === 'm' && !key.ctrl,
+  },
+  NEXT_PROJECT: {
+    key: '⇥',
+    action: 'next',
+    match: (key: readline.Key) => key.name === 'tab',
+  },
 };

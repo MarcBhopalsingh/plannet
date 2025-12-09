@@ -11,6 +11,7 @@ import {
   formatTask,
 } from './formatters';
 import { ProjectView, StatusMessage } from './project-view';
+import { WorkspaceView } from './workspace-view';
 
 export class Renderer {
   private readonly terminal: Terminal;
@@ -27,46 +28,64 @@ export class Renderer {
     this.terminal.restoreMainScreen();
   }
 
-  render(view: ProjectView): void {
+  render(workspace: WorkspaceView): void {
     const terminalHeight = this.terminal.getRows();
-    const tasks = view.getTasks();
-    const stats = getTaskStats(tasks);
-    const status = view.getStatus();
+    const projectViews = workspace.getAllProjectViews();
+    const activeIndex = workspace.getActiveProjectIndex();
 
     this.terminal.clearScreen();
+
+    // Render all projects
+    for (let i = 0; i < projectViews.length; i++) {
+      const isActive = i === activeIndex;
+      this.renderProject(projectViews[i], isActive);
+    }
+
+    // Get status from active project
+    const status = workspace.getActiveProjectView().getStatus();
+    this.renderFooter(terminalHeight, false, status);
+  }
+
+  private renderProject(view: ProjectView, isActive: boolean): void {
+    const tasks = view.getTasks();
+    const stats = getTaskStats(tasks);
+
     this.terminal.writeLine(
       formatHeader(view.getTitle(), stats.total, stats.completed)
     );
 
     if (tasks.length === 0) {
       formatEmptyState().forEach((line) => this.terminal.writeLine(line));
-      this.renderFooter(terminalHeight, false, status);
       return;
     }
 
     tasks.forEach((task, index) => {
-      this.terminal.writeLine(
-        formatTask(task, index === view.getSelectedIndex())
-      );
+      // Only show cursor in the active project
+      const showCursor = isActive && index === view.getSelectedIndex();
+      this.terminal.writeLine(formatTask(task, showCursor));
     });
-
-    this.renderFooter(terminalHeight, false, status);
   }
 
-  renderInputMode(view: ProjectView, inputText: string): void {
+  renderInputMode(workspace: WorkspaceView, inputText: string): void {
     const terminalHeight = this.terminal.getRows();
     const width = this.terminal.getColumns();
-    const tasks = view.getTasks();
-    const stats = getTaskStats(tasks);
+    const projectViews = workspace.getAllProjectViews();
 
     this.terminal.clearScreen();
-    this.terminal.writeLine(
-      formatHeader(view.getTitle(), stats.total, stats.completed)
-    );
 
-    tasks.forEach((task) => {
-      this.terminal.writeLine(formatTask(task, false));
-    });
+    // Render all projects without cursor during input mode
+    for (const view of projectViews) {
+      const tasks = view.getTasks();
+      const stats = getTaskStats(tasks);
+
+      this.terminal.writeLine(
+        formatHeader(view.getTitle(), stats.total, stats.completed)
+      );
+
+      tasks.forEach((task) => {
+        this.terminal.writeLine(formatTask(task, false));
+      });
+    }
 
     this.terminal.writeLine(formatInputSeparator(width));
     this.terminal.writeLine(formatInputRow(inputText));

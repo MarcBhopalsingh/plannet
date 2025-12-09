@@ -6,14 +6,25 @@ const DEFAULT_PROJECT = 'inbox';
 
 export async function handleInteractive(): Promise<void> {
   const projectRepo = new ProjectRepository();
-  const project = await projectRepo.load(DEFAULT_PROJECT);
+
+  // Load all existing projects
+  let projectPaths = await projectRepo.listProjects();
+
+  // Ensure inbox exists as default
+  if (!projectPaths.includes(DEFAULT_PROJECT)) {
+    await projectRepo.create(DEFAULT_PROJECT, 'Inbox');
+    projectPaths = [DEFAULT_PROJECT, ...projectPaths];
+  }
+
+  // Load all projects
+  const projects = await Promise.all(
+    projectPaths.map(async (path) => ({
+      path,
+      project: await projectRepo.load(path),
+    }))
+  );
 
   const renderer = new Renderer();
-  const viewer = new InteractiveTaskViewer(
-    renderer,
-    projectRepo,
-    project,
-    DEFAULT_PROJECT
-  );
+  const viewer = new InteractiveTaskViewer(renderer, projectRepo, projects);
   await viewer.run();
 }
