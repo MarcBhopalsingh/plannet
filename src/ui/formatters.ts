@@ -1,25 +1,38 @@
-import { ANSI } from '@plannet/io';
+import {
+  ANSI,
+  PROGRESS_ICONS,
+  formatInputRow,
+  formatInputSeparator,
+  formatProgressIcon,
+  formatSeparator,
+  formatStatusMessage,
+} from '@plannet/io';
 import { Task } from '@plannet/tasks';
 import { KEYBINDS } from './keybinds';
 
+// Re-export generic formatters for convenience
+export {
+  formatInputRow,
+  formatInputSeparator,
+  formatProgressIcon,
+  formatSeparator,
+  formatStatusMessage,
+};
+export type { StatusType } from '@plannet/io';
+
+/**
+ * App-specific icons for task UI
+ */
 export const ICONS = {
   CHECKBOX_COMPLETED: '◉',
   CHECKBOX_INCOMPLETE: '◯',
   CURSOR: '→',
   DOT: '•',
-  PROGRESS_EMPTY: '○',
-  PROGRESS_PARTIAL: '◐',
-  PROGRESS_FULL: '●',
   EXPANDED: '▼',
   COLLAPSED: '▶',
+  // Include progress icons for backwards compatibility
+  ...PROGRESS_ICONS,
 } as const;
-
-export function formatProgressIcon(percentage: number): string {
-  if (percentage === 0) return ANSI.GRAY + ICONS.PROGRESS_EMPTY + ANSI.RESET;
-  if (percentage === 100)
-    return ANSI.BRIGHT_GREEN + ICONS.PROGRESS_FULL + ANSI.RESET;
-  return ICONS.PROGRESS_PARTIAL;
-}
 
 export function formatHeader(
   title: string,
@@ -99,41 +112,4 @@ export function formatHelpBar(inputMode: boolean): string {
   );
 
   return `  ${formattedGroups.join(`  ${ANSI.GRAY}│${ANSI.RESET}  `)}`;
-}
-
-export function formatSeparator(width: number): string {
-  const line = '─'.repeat(Math.max(0, width));
-  return `${ANSI.GRAY}${line}${ANSI.RESET}`;
-}
-
-export function formatInputSeparator(width: number): string {
-  return `  ${ANSI.GRAY}${'─'.repeat(width - 4)}${ANSI.RESET}`;
-}
-
-export function formatInputRow(inputText: string): string {
-  const inputDisplay = inputText
-    ? `${inputText}▎`
-    : `${ANSI.DIM}Type a task...${ANSI.RESET}`;
-  return `  ${ANSI.GRAY}›${ANSI.RESET} ${inputDisplay}`;
-}
-
-export type StatusType = 'success' | 'info' | 'warning';
-
-const STATUS_ICONS: Record<StatusType, string> = {
-  success: '✓',
-  info: '›',
-  warning: '!',
-};
-
-export function formatStatusMessage(
-  message: string,
-  type: StatusType = 'info'
-): string {
-  const colors: Record<StatusType, string> = {
-    success: ANSI.BRIGHT_GREEN,
-    info: ANSI.BLUE,
-    warning: ANSI.YELLOW,
-  };
-  const icon = STATUS_ICONS[type];
-  return `  ${colors[type]}${icon}${ANSI.RESET} ${message}`;
 }

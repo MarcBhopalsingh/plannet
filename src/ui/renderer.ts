@@ -112,7 +112,7 @@ export class Renderer {
     }
 
     this.terminal.writeLine(formatInputSeparator(width));
-    this.terminal.writeLine(formatInputRow(inputText));
+    this.terminal.writeLine(formatInputRow(inputText, 'Type a task...'));
 
     // No status messages during input mode
     this.renderFooter(terminalHeight, true, null);
