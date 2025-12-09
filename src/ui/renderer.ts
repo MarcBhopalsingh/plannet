@@ -35,8 +35,12 @@ export class Renderer {
 
     this.terminal.clearScreen();
 
-    // Render all projects
+    // Render all projects with spacing between them
     for (let i = 0; i < projectViews.length; i++) {
+      // Add blank line between projects (not before first)
+      if (i > 0) {
+        this.terminal.writeLine('');
+      }
       const isActive = i === activeIndex;
       this.renderProject(projectViews[i], isActive);
     }
@@ -52,7 +56,13 @@ export class Renderer {
     const isCollapsed = view.isCollapsed();
 
     this.terminal.writeLine(
-      formatHeader(view.getTitle(), stats.total, stats.completed, isActive, isCollapsed)
+      formatHeader(
+        view.getTitle(),
+        stats.total,
+        stats.completed,
+        isActive,
+        isCollapsed
+      )
     );
 
     // Don't render tasks if collapsed
@@ -82,7 +92,13 @@ export class Renderer {
     this.terminal.clearScreen();
 
     // Render all projects without cursor during input mode
-    for (const view of projectViews) {
+    for (let i = 0; i < projectViews.length; i++) {
+      // Add blank line between projects (not before first)
+      if (i > 0) {
+        this.terminal.writeLine('');
+      }
+
+      const view = projectViews[i];
       const tasks = view.getTasks();
       const stats = getTaskStats(tasks);
 

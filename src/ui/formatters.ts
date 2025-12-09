@@ -5,13 +5,13 @@ import { KEYBINDS } from './keybinds';
 export const ICONS = {
   CHECKBOX_COMPLETED: '◉',
   CHECKBOX_INCOMPLETE: '◯',
-  CURSOR: '▸',
+  CURSOR: '→',
   DOT: '•',
   PROGRESS_EMPTY: '○',
   PROGRESS_PARTIAL: '◐',
   PROGRESS_FULL: '●',
-  EXPANDED: '▾',
-  COLLAPSED: '▸',
+  EXPANDED: '▼',
+  COLLAPSED: '▶',
 } as const;
 
 export function formatProgressIcon(percentage: number): string {
@@ -35,16 +35,16 @@ export function formatHeader(
   // Expand/collapse indicator
   const collapseIcon = isCollapsed ? ICONS.COLLAPSED : ICONS.EXPANDED;
 
-  // Active: cyan bar + bold title | Inactive: gray bar + dim title
+  // Active: blue bar + bold title | Inactive: gray bar + dim title
   const bar = isActive
-    ? `${ANSI.BRIGHT_CYAN}▌${ANSI.RESET}`
+    ? `${ANSI.BLUE}▌${ANSI.RESET}`
     : `${ANSI.GRAY}▌${ANSI.RESET}`;
   const titleStyle = isActive
     ? `${ANSI.BOLD} ${title}${ANSI.RESET}`
     : `${ANSI.DIM} ${title}${ANSI.RESET}`;
   const iconStyle = `${ANSI.GRAY}${collapseIcon}${ANSI.RESET}`;
 
-  return `\n  ${bar}${titleStyle} ${iconStyle}  ${stats}\n`;
+  return `  ${bar}${titleStyle} ${iconStyle}  ${stats}\n`;
 }
 
 export function formatTask(task: Task, isSelected: boolean): string {
@@ -54,14 +54,12 @@ export function formatTask(task: Task, isSelected: boolean): string {
     : ICONS.CHECKBOX_INCOMPLETE;
 
   // Cursor/selection indicator
-  const cursor = isSelected
-    ? `${ANSI.BRIGHT_CYAN}${ICONS.CURSOR}${ANSI.RESET}`
-    : ' ';
+  const cursor = isSelected ? ` ${ICONS.CURSOR} ` : '   ';
 
-  // Description styling
+  // Description styling - bold when selected, dim+strike when completed
   let description = task.description;
   if (task.completed) {
-    description = `${ANSI.GRAY}${ANSI.STRIKETHROUGH}${description}${ANSI.RESET}`;
+    description = `${ANSI.DIM}${ANSI.STRIKETHROUGH}${description}${ANSI.RESET}`;
   } else if (isSelected) {
     description = `${ANSI.BOLD}${description}${ANSI.RESET}`;
   }
@@ -133,7 +131,7 @@ export function formatStatusMessage(
 ): string {
   const colors: Record<StatusType, string> = {
     success: ANSI.BRIGHT_GREEN,
-    info: ANSI.BRIGHT_CYAN,
+    info: ANSI.BLUE,
     warning: ANSI.YELLOW,
   };
   const icon = STATUS_ICONS[type];

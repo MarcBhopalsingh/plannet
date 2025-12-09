@@ -2,17 +2,18 @@ export const ANSI = {
   // Text Reset
   RESET: '\x1b[0m',
 
-  // Text Styles
+  // Text Styles (structure-first)
   BOLD: '\x1b[1m',
   DIM: '\x1b[2m',
+  INVERSE: '\x1b[7m',
   STRIKETHROUGH: '\x1b[9m',
 
-  // Colors
+  // Colors (minimal - semantic + one accent)
   WHITE: '\x1b[97m',
   GRAY: '\x1b[90m',
   YELLOW: '\x1b[93m',
   BRIGHT_GREEN: '\x1b[92m',
-  BRIGHT_CYAN: '\x1b[96m',
+  BLUE: '\x1b[34m',
 
   // Screen Control
   ALTERNATE_SCREEN_ON: '\x1b[?1049h',
@@ -27,4 +28,3 @@ export const ANSI = {
 export function cursorTo(row: number, col: number): string {
   return `\x1b[${row};${col}H`;
 }
-
