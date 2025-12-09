@@ -49,13 +49,21 @@ export class Renderer {
   private renderProject(view: ProjectView, isActive: boolean): void {
     const tasks = view.getTasks();
     const stats = getTaskStats(tasks);
+    const isCollapsed = view.isCollapsed();
 
     this.terminal.writeLine(
-      formatHeader(view.getTitle(), stats.total, stats.completed)
+      formatHeader(view.getTitle(), stats.total, stats.completed, isActive, isCollapsed)
     );
 
+    // Don't render tasks if collapsed
+    if (isCollapsed) {
+      return;
+    }
+
     if (tasks.length === 0) {
-      formatEmptyState().forEach((line) => this.terminal.writeLine(line));
+      if (isActive) {
+        formatEmptyState().forEach((line) => this.terminal.writeLine(line));
+      }
       return;
     }
 

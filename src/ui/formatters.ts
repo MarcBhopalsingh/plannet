@@ -10,6 +10,8 @@ export const ICONS = {
   PROGRESS_EMPTY: '○',
   PROGRESS_PARTIAL: '◐',
   PROGRESS_FULL: '●',
+  EXPANDED: '▾',
+  COLLAPSED: '▸',
 } as const;
 
 export function formatProgressIcon(percentage: number): string {
@@ -22,14 +24,27 @@ export function formatProgressIcon(percentage: number): string {
 export function formatHeader(
   title: string,
   total: number,
-  completed: number
+  completed: number,
+  isActive = true,
+  isCollapsed = false
 ): string {
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-  const progressIcon = formatProgressIcon(percentage);
   const countColor = percentage === 100 ? ANSI.BRIGHT_GREEN : ANSI.RESET;
-  const stats = `${progressIcon} ${countColor}${completed}/${total}${ANSI.RESET} tasks`;
+  const stats = `${countColor}${completed}/${total}${ANSI.RESET} tasks`;
 
-  return `\n  ${ANSI.BRIGHT_CYAN}▌${ANSI.RESET}${ANSI.BOLD} ${title}${ANSI.RESET}  ${ANSI.GRAY}${ICONS.DOT}${ANSI.RESET}  ${stats}\n`;
+  // Expand/collapse indicator
+  const collapseIcon = isCollapsed ? ICONS.COLLAPSED : ICONS.EXPANDED;
+
+  // Active: cyan bar + bold title | Inactive: gray bar + dim title
+  const bar = isActive
+    ? `${ANSI.BRIGHT_CYAN}▌${ANSI.RESET}`
+    : `${ANSI.GRAY}▌${ANSI.RESET}`;
+  const titleStyle = isActive
+    ? `${ANSI.BOLD} ${title}${ANSI.RESET}`
+    : `${ANSI.DIM} ${title}${ANSI.RESET}`;
+  const iconStyle = `${ANSI.GRAY}${collapseIcon}${ANSI.RESET}`;
+
+  return `\n  ${bar}${titleStyle} ${iconStyle}  ${stats}\n`;
 }
 
 export function formatTask(task: Task, isSelected: boolean): string {
@@ -56,9 +71,7 @@ export function formatTask(task: Task, isSelected: boolean): string {
 
 export function formatEmptyState(): string[] {
   return [
-    '',
-    `  ${ANSI.GRAY}${ICONS.DOT} No tasks yet. Press ${ANSI.RESET}${ANSI.BOLD}a${ANSI.RESET}${ANSI.GRAY} to add one!${ANSI.RESET}`,
-    '',
+    `      ${ANSI.GRAY}No tasks yet. Press ${ANSI.RESET}${ANSI.BOLD}a${ANSI.RESET}${ANSI.GRAY} to add one!${ANSI.RESET}`,
   ];
 }
 
@@ -72,7 +85,12 @@ export function formatHelpBar(inputMode: boolean): string {
     [KEYBINDS.ADD, KEYBINDS.TOGGLE], // Primary actions
     [KEYBINDS.MOVE_UP, KEYBINDS.MOVE_DOWN], // Navigation
     [KEYBINDS.EDIT, KEYBINDS.DELETE], // Edit actions
-    [KEYBINDS.ADD_PROJECT, KEYBINDS.MOVE_TO_PROJECT, KEYBINDS.NEXT_PROJECT], // Project actions
+    [
+      KEYBINDS.ADD_PROJECT,
+      KEYBINDS.NEXT_PROJECT,
+      KEYBINDS.TOGGLE_FOLD,
+      KEYBINDS.TOGGLE_FOLD_ALL,
+    ], // Project actions
     [KEYBINDS.SORT, KEYBINDS.QUIT], // Misc
   ];
 

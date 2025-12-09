@@ -9,8 +9,21 @@ export interface StatusMessage {
 export class ProjectView {
   private selectedIndex = 0;
   private statusMessage: StatusMessage | null = null;
+  private collapsed = false;
 
   constructor(private readonly project: Project) {}
+
+  isCollapsed(): boolean {
+    return this.collapsed;
+  }
+
+  expand(): void {
+    this.collapsed = false;
+  }
+
+  collapse(): void {
+    this.collapsed = true;
+  }
 
   getTitle(): string {
     return this.project.title;

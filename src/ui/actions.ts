@@ -134,6 +134,16 @@ export class ActionRegistry {
         rerender: true,
         execute: () => this.workspace.nextProject(),
       },
+      {
+        keybind: KEYBINDS.TOGGLE_FOLD,
+        rerender: true,
+        execute: () => this.workspace.toggleFoldActiveProject(),
+      },
+      {
+        keybind: KEYBINDS.TOGGLE_FOLD_ALL,
+        rerender: true,
+        execute: () => this.workspace.toggleFoldAll(),
+      },
     ];
   }
 }

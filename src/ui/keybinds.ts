@@ -60,4 +60,14 @@ export const KEYBINDS: Record<string, Keybind> = {
     action: 'next',
     match: (key: readline.Key) => key.name === 'tab',
   },
+  TOGGLE_FOLD: {
+    key: 'f',
+    action: 'fold',
+    match: (key: readline.Key) => key.name === 'f' && !key.ctrl && !key.shift,
+  },
+  TOGGLE_FOLD_ALL: {
+    key: 'F',
+    action: 'fold all',
+    match: (key: readline.Key) => key.name === 'f' && key.shift === true,
+  },
 };

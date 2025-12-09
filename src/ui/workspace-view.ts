@@ -89,4 +89,25 @@ export class WorkspaceView {
   updateSelectedTask(description: string): void {
     this.getActiveProjectView().updateSelectedTask(description);
   }
+
+  toggleFoldActiveProject(): void {
+    const view = this.getActiveProjectView();
+    if (view.isCollapsed()) {
+      view.expand();
+    } else {
+      view.collapse();
+    }
+  }
+
+  toggleFoldAll(): void {
+    // Smart toggle: if any expanded, fold all; if all folded, unfold all
+    const anyExpanded = this.projectViews.some((view) => !view.isCollapsed());
+    for (const view of this.projectViews) {
+      if (anyExpanded) {
+        view.collapse();
+      } else {
+        view.expand();
+      }
+    }
+  }
 }
