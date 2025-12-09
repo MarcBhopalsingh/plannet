@@ -42,6 +42,26 @@
       "options": {
         "command": "tsc --noEmit"
       }
+    },
+    "build:exe": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/bin"],
+      "options": {
+        "command": "bun build src/cli.ts --compile --outfile dist/bin/plannet"
+      }
+    },
+    "build:exe:all": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/bin"],
+      "options": {
+        "commands": [
+          "bun build src/cli.ts --compile --outfile dist/bin/plannet-darwin-arm64 --target bun-darwin-arm64",
+          "bun build src/cli.ts --compile --outfile dist/bin/plannet-darwin-x64 --target bun-darwin-x64",
+          "bun build src/cli.ts --compile --outfile dist/bin/plannet-linux-x64 --target bun-linux-x64",
+          "bun build src/cli.ts --compile --outfile dist/bin/plannet-windows-x64.exe --target bun-windows-x64"
+        ],
+        "parallel": true
+      }
     }
   }
 }

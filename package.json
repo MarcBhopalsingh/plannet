@@ -8,24 +8,26 @@
   },
   "scripts": {
     "build": "nx build",
+    "build:exe": "nx build:exe",
+    "build:exe:all": "nx build:exe:all",
     "dev": "nx dev",
     "dev:interactive": "nx dev -i",
     "typecheck": "nx typecheck"
   },
   "private": true,
   "devDependencies": {
-    "@nx/js": "22.1.2",
-    "@nx/node": "^22.1.2",
-    "@swc-node/register": "~1.9.1",
-    "@swc/core": "~1.5.7",
-    "@swc/helpers": "~0.5.11",
-    "@types/node": "^24.10.1",
-    "nx": "22.1.2",
-    "prettier": "^2.6.2",
+    "@nx/js": "22.2.0",
+    "@nx/node": "^22.2.0",
+    "@swc-node/register": "~1.11.1",
+    "@swc/core": "~1.15.3",
+    "@swc/helpers": "~0.5.17",
+    "@types/node": "^24.10.2",
+    "nx": "22.2.0",
+    "prettier": "^2.8.8",
     "tsc-alias": "^1.8.16",
-    "tslib": "^2.3.0",
-    "tsx": "^4.7.0",
-    "typescript": "~5.9.2"
+    "tslib": "^2.8.1",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3"
   },
   "workspaces": [
     "packages/*"
